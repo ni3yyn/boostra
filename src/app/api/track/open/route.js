@@ -1,6 +1,6 @@
 // app/api/track/open/route.js
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/firebase';
+import { db } from '../../../lib/firebase';
 import { doc, updateDoc, increment, serverTimestamp } from 'firebase/firestore';
 
 export async function GET(req) {
