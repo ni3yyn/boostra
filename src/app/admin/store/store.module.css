@@ -472,3 +472,343 @@
   background: rgba(245, 158, 11, 0.16);
   color: #B45309;
 }
+
+/* =========================================
+   BULK ACTIONS FLOATING BAR & SELECTION
+   ========================================= */
+.selectAllHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+  margin-bottom: 14px;
+}
+
+.storeOrderCardSelected {
+  background: rgba(255, 255, 255, 0.88) !important;
+  border-color: #0000FF !important;
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 255, 0.12) !important;
+}
+
+@keyframes bulkSlideUpCenter {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bulkDockSlideUpMobile {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.prominentBulkBar {
+  position: fixed;
+  bottom: 28px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: fit-content;
+  max-width: calc(100vw - 32px);
+  z-index: 120;
+  direction: rtl;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Desktop Bar Layout */
+.bulkBarDesktopLayout {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 0, 255, 0.14);
+  border-radius: 100px;
+  padding: 8px 22px;
+  box-shadow: 0 20px 45px -10px rgba(0, 0, 255, 0.15), 0 8px 20px -4px rgba(15, 23, 42, 0.08);
+  animation: bulkSlideUpCenter 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.bulkBadgeBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bulkCountBadge {
+  background: #0000FF;
+  color: #FFFFFF;
+  font-weight: 800;
+  font-size: 12px;
+  min-width: 26px;
+  height: 26px;
+  border-radius: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+}
+
+.bulkCountTxt {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0F172A;
+  white-space: nowrap;
+}
+
+.bulkVerticalLine {
+  width: 1.5px;
+  height: 24px;
+  background: rgba(15, 23, 42, 0.1);
+}
+
+.bulkStatusRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bulkSectionLabel {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #64748B;
+  margin-left: 4px;
+  white-space: nowrap;
+}
+
+.bulkActionPill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 13px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid rgba(15, 23, 42, 0.04);
+  background: rgba(15, 23, 42, 0.03);
+  color: #0F172A;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.bulkActionPill:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(15, 23, 42, 0.1);
+  transform: translateY(-1px);
+}
+
+.colorDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.bulkDeleteProminent {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #DC2626;
+  padding: 8px 16px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.bulkDeleteProminent:hover {
+  background: #DC2626;
+  color: #FFFFFF;
+  border-color: #DC2626;
+}
+
+.bulkDismissBtn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: #F1F5F9;
+  color: #64748B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bulkDismissBtn:hover {
+  background: #E2E8F0;
+  color: #0F172A;
+}
+
+/* Mobile Dock (Hidden on Desktop) */
+.bulkBarMobileDock {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .prominentBulkBar {
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    transform: none;
+    width: auto;
+    max-width: 100%;
+  }
+
+  .bulkBarDesktopLayout {
+    display: none;
+  }
+
+  .bulkBarMobileDock {
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 0, 255, 0.14);
+    border-radius: 22px;
+    padding: 14px 16px;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.15);
+    animation: bulkDockSlideUpMobile 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .bulkMTopRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .bulkDeleteProminentMobile {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    color: #DC2626;
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .bulkMStatusGrid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+  }
+
+  .bulkMChip {
+    padding: 9px 2px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: #F8FAFC;
+    color: #0F172A;
+    text-align: center;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .bulkMChip:active {
+    background: #E2E8F0;
+  }
+}
+
+/* =========================================
+   GOOGLE SHEETS STORE SYNC STYLING
+   ========================================= */
+.btnGoogleSheetsHeader {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(16, 185, 129, 0.08);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 12px;
+  padding: 8px 14px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.btnGoogleSheetsHeader:hover {
+  background: rgba(16, 185, 129, 0.15);
+  transform: translateY(-1px);
+}
+
+.btnGoogleSheetsSmall {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16, 185, 129, 0.08);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 10px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.btnGoogleSheetsSmall:hover {
+  background: rgba(16, 185, 129, 0.16);
+  transform: translateY(-1px);
+}
+
+.gsOptionCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(15, 23, 42, 0.02);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.gsOptionCard:hover {
+  background: rgba(0, 0, 255, 0.035);
+  border-color: rgba(0, 0, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.gsOptionIcon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}

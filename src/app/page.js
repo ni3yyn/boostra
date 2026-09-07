@@ -1076,7 +1076,7 @@ export default function MediaBuyingLanding() {
     {/* روابط سطح المكتب */}
     <ul className="header-nav-links">
       <li><Link href="/">الرئيسية</Link></li>
-      <li><Link href="/gifts">الهدايا</Link></li>
+      <li><Link href="/gifts">المتجر</Link></li>
       <li><Link href="/gallery">معرض النتائج</Link></li>
       <li><Link href="#booking" onClick={handleBookingNavigation}>تواصل معنا</Link></li>
     </ul>
@@ -1116,7 +1116,7 @@ export default function MediaBuyingLanding() {
       </li>
       <li>
         <Link href="/gifts" onClick={() => setMobileMenuOpen(false)}>
-          <span>الهدايا</span>
+          <span>المتجر</span>
           <span style={{ color: 'var(--text-dim)' }}>←</span>
         </Link>
       </li>

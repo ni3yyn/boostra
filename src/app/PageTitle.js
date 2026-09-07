@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 const TITLES = {
   "/": "Boostra Agency | الرئيسية",
-  "/gifts": "Boostra Agency | الهدايا المجانية",
+  "/gifts": "Boostra Agency |  المتجر",
   "/gallery": "Boostra Agency | معرض النتائج",
 };
 

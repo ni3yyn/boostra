@@ -29,7 +29,7 @@ export async function POST(req) {
 
     const transporter = getEmailTransporter();
 
-    // اختيار رابط المورد الرقمي (Google Drive)
+    // اختيار رابط المنتج الرقمي (Google Drive)
     const finalAssetLink = resourceLink || downloadUrl || '';
 
     // توليد قالب البريد الفخم الأبيض الانسيابي الشامل للبيانات وباترن البراند
@@ -37,10 +37,10 @@ export async function POST(req) {
       recipientName: name || 'زبوننا العزيز',
       recipientEmail: email,
       productTitle: productTitle,
-      productDesc: productDesc || 'نشكرك على طلب هذا المورد الرقمي عبر متجر Boostra Agency الرسمي. تم تجهيز رابط الوصول المباشر الخاص بك.',
+      productDesc: productDesc || 'نشكرك على طلب هذا المنتج الرقمي عبر متجر Boostra Agency الرسمي. تم تجهيز رابط الوصول المباشر الخاص بك.',
       productFeatures: productFeatures || [],
       productImage: productImage || '',
-      priceText: priceText || 'مورد مجاني',
+      priceText: priceText || 'منتج مجاني',
       resourceLink: finalAssetLink,
       orderDate: new Date().toLocaleString('ar-DZ', { timeZone: 'Africa/Algiers' }),
     });
@@ -58,7 +58,7 @@ export async function POST(req) {
 
     return withCors(NextResponse.json({
       success: true, 
-      message: 'تم تسليم المورد للبريد الإلكتروني بنجاح',
+      message: 'تم تسليم المنتج للبريد الإلكتروني بنجاح',
       messageId: sendResult.messageId
     }));
 

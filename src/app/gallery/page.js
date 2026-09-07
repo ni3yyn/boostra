@@ -364,7 +364,7 @@ export default function GalleryPage() {
 
             <ul className="header-nav-links">
               <li><Link href="/">الرئيسية</Link></li>
-              <li><Link href="/gifts">الهدايا</Link></li>
+              <li><Link href="/gifts">المتجر</Link></li>
               <li><Link href="/gallery" style={{ color: 'var(--accent)', fontWeight: 700 }}>معرض النتائج</Link></li>
               <li><Link href="/#booking">تواصل معنا</Link></li>
             </ul>
@@ -403,7 +403,7 @@ export default function GalleryPage() {
               </li>
               <li>
                 <Link href="/gifts" onClick={() => setMobileMenuOpen(false)}>
-                  <span>الهدايا المجانية</span>
+                  <span>المتجر</span>
                   <span style={{ color: 'var(--text-dim)' }}>←</span>
                 </Link>
               </li>

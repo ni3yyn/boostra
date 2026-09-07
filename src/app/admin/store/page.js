@@ -248,7 +248,7 @@ export default function StoreAdminPage() {
     return () => unsubscribe();
   }, []);
 
-  // 2. مزامنة طلبات الهدايا المجانية فقط. مدفوعات leads تبقى للأدمن الرئيسي.
+  // 2. مزامنة طلبات المنتجات المجانية فقط. مدفوعات leads تبقى للأدمن الرئيسي.
   useEffect(() => {
     const qGifts = query(collection(db, 'gift_leads'), orderBy('createdAt', 'desc'));
     let unsubscribeGifts = () => {};
@@ -692,7 +692,7 @@ export default function StoreAdminPage() {
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <Icons.Box />
-                  <span className={styles.trailLabel}>جميع الموارد</span>
+                  <span className={styles.trailLabel}>جميع المنتجات</span>
                 </div>
               </button>
 
@@ -731,7 +731,7 @@ export default function StoreAdminPage() {
               <div className={styles.softCard}>
                 <div className={styles.cardContent}>
                   <div className={styles.cardHeader}>
-                    <h2 className={styles.cardTitle}>الموارد المعروضة حالياً</h2>
+                    <h2 className={styles.cardTitle}>المنتجات المعروضة حالياً</h2>
                     <button onClick={() => setActiveTab('form')} className={styles.btnPrimarySmall}>
                       <Icons.Plus /> <span>إضافة منتج</span>
                     </button>
@@ -744,7 +744,7 @@ export default function StoreAdminPage() {
                     </div>
                   ) : products.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '60px 20px', color: '#64748B' }}>
-                      <p style={{ fontWeight: 700, fontSize: '15px' }}>لا توجد موارد معروضة حالياً.</p>
+                      <p style={{ fontWeight: 700, fontSize: '15px' }}>لا توجد منتجات معروضة حالياً.</p>
                       <p style={{ fontSize: '13px', marginTop: '6px' }}>أضف دليلاً أو أداة جديدة لتظهر لعملائك.</p>
                     </div>
                   ) : (
@@ -804,7 +804,7 @@ export default function StoreAdminPage() {
                   <div className={styles.cardHeader}>
                     <div>
                       <h2 className={styles.cardTitle}>طلبيات ومبيعات المتجر الرقمي</h2>
-                      <p style={{ fontSize: '12px', color: '#64748B', margin: '4px 0 0 0' }}>متابعة طلبات شراء الأدوات والموارد وتأكيد الدفع والتسليم</p>
+                      <p style={{ fontSize: '12px', color: '#64748B', margin: '4px 0 0 0' }}>متابعة طلبات شراء الأدوات والمنتجات وتأكيد الدفع والتسليم</p>
                     </div>
 
                     <button
@@ -1521,7 +1521,7 @@ function GoogleSheetsStoreModal({ isOpen, onClose, orders, showToast }) {
         o.phone ? "'" + String(o.phone).trim() : '',
         o.email || '',
         o.pack || o.resource || o.productTitle || '',
-        o.isFromGifts ? 'مورد مجاني' : 'طلب شراء متجر',
+        o.isFromGifts ? 'منتج مجاني' : 'طلب شراء متجر',
         getStatusLabel(o.status),
         (o.notes || '').replace(/\r?\n/g, ' '),
         o.createdAt?.toDate ? o.createdAt.toDate().toLocaleString('ar-DZ') : ''
@@ -1545,7 +1545,7 @@ function GoogleSheetsStoreModal({ isOpen, onClose, orders, showToast }) {
         `"${(o.phone || '').replace(/"/g, '""')}"`,
         `"${(o.email || '').replace(/"/g, '""')}"`,
         `"${(o.pack || o.resource || o.productTitle || '').replace(/"/g, '""')}"`,
-        `"${o.isFromGifts ? 'مورد مجاني' : 'طلب شراء متجر'}"`,
+        `"${o.isFromGifts ? 'منتج مجاني' : 'طلب شراء متجر'}"`,
         `"${getStatusLabel(o.status)}"`,
         `"${(o.notes || '').replace(/"/g, '""')}"`,
         `"${o.createdAt?.toDate ? o.createdAt.toDate().toLocaleString('ar-DZ') : ''}"`
@@ -1608,7 +1608,7 @@ function GoogleSheetsStoreModal({ isOpen, onClose, orders, showToast }) {
       isOpen={isOpen}
       onClose={onClose}
       title="تصدير ومزامنة طلبات المتجر مع Google Sheets"
-      subtitle="إدارة وتصدير كل طلبيات الأدوات والموارد ومزامنتها لحظياً مع جدولك السحابي."
+      subtitle="إدارة وتصدير كل طلبيات الأدوات والمنتجات ومزامنتها لحظياً مع جدولك السحابي."
       maxWidth="540px"
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -1674,7 +1674,7 @@ function GoogleSheetsStoreModal({ isOpen, onClose, orders, showToast }) {
         {/* قسم الـ Webhook التلقائي */}
         <div style={{ borderTop: '1px solid rgba(15, 23, 42, 0.08)', paddingTop: '14px', marginTop: '6px' }}>
           <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#0F172A', display: 'block', marginBottom: '6px' }}>
-            المزامنة السحابية التلقائية (Google Apps Script Webhook لمتجر الموارد):
+            المزامنة السحابية التلقائية (Google Apps Script Webhook لمتجر المنتجات):
           </span>
           <p style={{ fontSize: '11.5px', color: '#64748B', margin: '0 0 10px 0', lineHeight: 1.5 }}>
             ألصق رابط نشر الـ Webhook الخاص بالشيت الجديد ليتم تحديثه وحذف الطلبات منه تلقائياً:
