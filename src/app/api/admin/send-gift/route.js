@@ -1,6 +1,7 @@
 // src/app/api/admin/send-gift/route.js
 import { NextResponse } from 'next/server';
 import { getEmailTransporter, generateBoostraStoreOrderEmailHtml } from '../../../../lib/emailService';
+import { getCorsHeaders, withCors } from '../../../../lib/cors';
 
 export async function POST(req) {
   console.log('\n================== 🚀 [STORE GIFT DELIVERY API] ==================');
@@ -23,7 +24,7 @@ export async function POST(req) {
 
     if (!email || !productTitle) {
       console.error('[GIFT API] ❌ Validation Error: Missing email or productTitle');
-      return NextResponse.json({ error: 'البيانات الأساسية للطلب ناقصة' }, { status: 400 });
+      return withCors(NextResponse.json({ error: 'البيانات الأساسية للطلب ناقصة' }, { status: 400 }));
     }
 
     const transporter = getEmailTransporter();
@@ -55,19 +56,23 @@ export async function POST(req) {
     console.log(`[GIFT API] ✅ Asset Email Delivered to ${email} | MessageId: ${sendResult.messageId}`);
     console.log('==================================================================\n');
 
-    return NextResponse.json({ 
+    return withCors(NextResponse.json({
       success: true, 
       message: 'تم تسليم المورد للبريد الإلكتروني بنجاح',
       messageId: sendResult.messageId
-    });
+    }));
 
   } catch (error) {
     console.error('\n[GIFT API ERROR] 💥 Details:', error);
     console.log('==================================================================\n');
 
-    return NextResponse.json({ 
+    return withCors(NextResponse.json({
       error: error.message || 'فشل إرسال الإيميل عبر خادم البريد',
       code: error.code || 'UNKNOWN'
-    }, { status: 500 });
+    }, { status: 500 }));
   }
+}
+
+export function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: getCorsHeaders() });
 }

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { db } from '../lib/firebase';
 import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp } from 'firebase/firestore';
 import './gifts.css';
+import { apiUrl } from '../../lib/apiUrl';
 
 // --- BOOSTRA AGENCY LOGO ---
 const BrandLogo = ({ size = 36, isAnimating = false }) => (
@@ -274,7 +275,7 @@ export default function DigitalGiftsStorePage() {
 
         // 3. الاتصال بالمسار الصحيح للمتجر ليرسل القالب الفخم الجديد بالكامل
         if (clientEmail.trim()) {
-          fetch('/api/admin/send-gift', {
+          fetch(apiUrl('/api/admin/send-gift'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 

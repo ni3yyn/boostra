@@ -6,6 +6,7 @@ import styles from './CampaignTab.module.css'; // استيراد الـ Module
 import EmailModal from './EmailModal';
 import { db } from '../../../lib/firebase';
 import { collection, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { apiUrl } from '../../../../lib/apiUrl';
 
 // --- THE UNIFIED BRAND PATTERN ---
 const UnifiedBrandPattern = ({ width = "450px", height = "280px", opacity = 0.35 }) => (
@@ -340,7 +341,7 @@ const [importing, setImporting] = useState(false);
 
   setSending(true);
   try {
-    const res = await fetch('/api/admin/send-email', {
+    const res = await fetch(apiUrl('/api/admin/send-email'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -394,7 +395,7 @@ const [importing, setImporting] = useState(false);
       }));
 
       try {
-        const res = await fetch('/api/admin/send-email', {
+        const res = await fetch(apiUrl('/api/admin/send-email'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

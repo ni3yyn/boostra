@@ -1,6 +1,7 @@
 // app/api/admin/send-email/route.js
 import { NextResponse } from 'next/server';
 import { getEmailTransporter, generateBoostraEmailHtml } from '@/lib/emailService';
+import { getCorsHeaders, withCors } from '@/lib/cors';
 import { db } from '../../../lib/firebase';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 
@@ -15,12 +16,12 @@ export async function POST(req) {
 
     if (!recipients || !Array.isArray(recipients) || recipients.length === 0) {
       console.error('[EMAIL API] ❌ Validation Error: No recipients provided');
-      return NextResponse.json({ error: 'لم يتم تحديد أي مستلم صالح' }, { status: 400 });
+      return withCors(NextResponse.json({ error: 'لم يتم تحديد أي مستلم صالح' }, { status: 400 }));
     }
 
     if (!subject || !body) {
       console.error('[EMAIL API] ❌ Validation Error: Missing subject or body');
-      return NextResponse.json({ error: 'العنوان ومحتوى الرسالة مطلوبان' }, { status: 400 });
+      return withCors(NextResponse.json({ error: 'العنوان ومحتوى الرسالة مطلوبان' }, { status: 400 }));
     }
 
     const transporter = getEmailTransporter();
@@ -90,23 +91,27 @@ export async function POST(req) {
     console.log(`[EMAIL API] 🏁 Finished! Sent: ${sentCount} | Failed: ${failedCount}`);
     console.log('==============================================================\n');
 
-    return NextResponse.json({
+    return withCors(NextResponse.json({
       success: true,
       sentCount,
       failedCount,
       errorsList,
       message: `تم إرسال ${sentCount} إيميل بنجاح!`,
-    });
+    }));
 
   } catch (error) {
     console.error('\n[EMAIL API FATAL ERROR] 💥 Stack:', error);
     console.log('==============================================================\n');
 
-    return NextResponse.json({ 
+    return withCors(NextResponse.json({ 
       error: error.message || 'فشل الاتصال بخادم البريد',
       code: error.code || 'UNKNOWN',
       command: error.command || 'UNKNOWN',
       response: error.response || 'No SMTP response'
-    }, { status: 500 });
+    }, { status: 500 }));
   }
+}
+
+export function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: getCorsHeaders() });
 }

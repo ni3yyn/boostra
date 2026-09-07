@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { apiUrl } from '../../../../lib/apiUrl';
 
 export default function SettingsTab() {
   const [testing, setTesting] = useState(false);
@@ -14,7 +15,7 @@ export default function SettingsTab() {
     setTestResult(null);
 
     try {
-      const res = await fetch('/api/admin/send-email', {
+      const res = await fetch(apiUrl('/api/admin/send-email'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

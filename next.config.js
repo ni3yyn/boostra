@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
+  // Firebase builds stay static; Vercel keeps API route handlers server-rendered.
+  output: process.env.VERCEL ? undefined : 'export',
   images: {
     unoptimized: true,
   },

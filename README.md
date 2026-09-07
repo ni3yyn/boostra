@@ -6,6 +6,18 @@ Copy `.env.example` to `.env.local` for local development. Never commit `.env.lo
 
 The current Firebase Hosting configuration uses Next.js static export (`out`). `NEXT_PUBLIC_*` values must be present when the static build runs. The `/api/admin/send-email` and `/api/admin/send-gift` routes require a server runtime and will not run from static Firebase Hosting alone; deploy those routes separately using a server-capable target such as Firebase Functions or App Hosting.
 
+### Firebase + Vercel split
+
+The intended no-Firebase-Functions setup is:
+
+- Firebase Hosting serves `boostraagency.org`.
+- Vercel serves the API routes at `api.boostraagency.org`.
+- Set `NEXT_PUBLIC_API_URL=https://api.boostraagency.org` in the Firebase build environment.
+- Set `NEXT_PUBLIC_APP_URL=https://boostraagency.org` and `NEXT_PUBLIC_API_URL=https://api.boostraagency.org` in Vercel.
+- Set `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, and `SMTP_PASS` only in Vercel. Do not expose them to the Firebase build or GitHub.
+- In Vercel, add the GitHub repository as a project and attach `api.boostraagency.org` as its custom domain.
+- At the domain registrar, create the DNS record Vercel provides for `api`.
+
 ## Getting Started
 
 First, run the development server:

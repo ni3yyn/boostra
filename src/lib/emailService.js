@@ -69,7 +69,8 @@ const HTML_LOGO = `
  */
 export const generateBoostraEmailHtml = ({ recipientName, title, bodyContent, ctaText, ctaUrl, trackingId }) => {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://boostraagency.org';
-  const trackingPixel = trackingId ? `<img src="${appUrl}/api/track/open?id=${trackingId}" width="1" height="1" style="display:none !important; border:none;" alt="" />` : '';
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || appUrl;
+  const trackingPixel = trackingId ? `<img src="${apiBaseUrl}/api/track/open?id=${trackingId}" width="1" height="1" style="display:none !important; border:none;" alt="" />` : '';
 
   const ctaButton = (ctaText && ctaUrl) ? `
     <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 36px; margin-bottom: 12px; border-collapse: separate;">
@@ -190,10 +191,11 @@ export const generateBoostraStoreOrderEmailHtml = ({
   trackingId = ''
 }) => {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://boostraagency.org';
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || appUrl;
   const formattedDate = orderDate || new Date().toLocaleString('ar-DZ', { timeZone: 'Africa/Algiers' });
   const referenceId = orderId || `BST-${Math.floor(100000 + Math.random() * 900000)}`;
 
-  const trackingPixel = trackingId ? `<img src="${appUrl}/api/track/open?id=${trackingId}" width="1" height="1" style="display:none !important; border:none;" alt="" />` : '';
+  const trackingPixel = trackingId ? `<img src="${apiBaseUrl}/api/track/open?id=${trackingId}" width="1" height="1" style="display:none !important; border:none;" alt="" />` : '';
 
   const featuresHtml = (productFeatures && productFeatures.length > 0)
     ? `
