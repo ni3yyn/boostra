@@ -18,6 +18,8 @@ The intended no-Firebase-Functions setup is:
 - In Vercel, add the GitHub repository as a project and attach `api.boostraagency.org` as its custom domain.
 - At the domain registrar, create the DNS record Vercel provides for `api`.
 
+Build the Firebase frontend with `npm run build:firebase` (or `yarn build:firebase`) before `firebase deploy --only hosting`. Use the normal `npm run build` command for Vercel so the API routes remain available there.
+
 ## Getting Started
 
 First, run the development server:

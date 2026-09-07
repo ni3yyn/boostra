@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev --webpack --hostname 0.0.0.0",
     "build": "next build --webpack",
+    "build:firebase": "node scripts/build-firebase.mjs",
     "start": "next start",
     "lint": "eslint"
   },
