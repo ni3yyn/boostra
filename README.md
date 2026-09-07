@@ -1,5 +1,11 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Environment and Deployment
+
+Copy `.env.example` to `.env.local` for local development. Never commit `.env.local` or SMTP credentials to this public repository. Configure production values through the deployment provider's secret or environment-variable settings.
+
+The current Firebase Hosting configuration uses Next.js static export (`out`). `NEXT_PUBLIC_*` values must be present when the static build runs. The `/api/admin/send-email` and `/api/admin/send-gift` routes require a server runtime and will not run from static Firebase Hosting alone; deploy those routes separately using a server-capable target such as Firebase Functions or App Hosting.
+
 ## Getting Started
 
 First, run the development server:
