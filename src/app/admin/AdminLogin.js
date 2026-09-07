@@ -128,9 +128,9 @@ export default function AdminLogin({ onLoginSuccess }) {
 
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email.trim(), password.trim());
+      const credential = await signInWithEmailAndPassword(auth, email.trim(), password.trim());
       if (onLoginSuccess) {
-        onLoginSuccess();
+        onLoginSuccess(credential.user);
       }
     } catch (err) {
       console.error('Login error:', err);

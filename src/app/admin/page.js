@@ -9,6 +9,7 @@ import AdminDashboard from "./AdminDashboard";
 
 const SPLASH_DURATION_MS = 1300;
 const SPLASH_EXIT_DURATION_MS = 350;
+const CONFIRMATION_EMPLOYEE_UID = 'GBOeDANTY6PnSUxV6uSIoA7Ugug2';
 
 const BoostraLogo = ({ size = 56 }) => (
   <svg 
@@ -49,6 +50,10 @@ export default function AdminGatePage() {
     if (!authReady || phase !== 'init') return;
 
     if (user) {
+      if (user.uid === CONFIRMATION_EMPLOYEE_UID) {
+        window.location.replace('/admin/store');
+        return;
+      }
       // إذا كان مسجلا بالفعل -> أظهر مباشرة: مرحبا، أيمن
       setPhase('welcome-aymen');
       const t = setTimeout(() => {
@@ -75,7 +80,11 @@ export default function AdminGatePage() {
   }, [user, phase, authReady]);
 
   // 3. عند الضغط على تسجيل الدخول بنجاح من شاشة الـ Login
-  const handleLoginSuccess = () => {
+  const handleLoginSuccess = (loggedInUser) => {
+    if (loggedInUser?.uid === CONFIRMATION_EMPLOYEE_UID) {
+      window.location.replace('/admin/store');
+      return;
+    }
     setPhase('welcome-aymen');
     setTimeout(() => {
       setPhase('leaving-aymen');

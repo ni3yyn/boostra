@@ -1,0 +1,48 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.uid == 'gI1hqFUQI0XdTUKEcxFpxOd7XVZ2';
+    }
+
+    function isConfirmationEmployee() {
+      return request.auth != null
+        && request.auth.uid == 'GBOeDANTY6PnSUxV6uSIoA7Ugug2';
+    }
+
+    match /leads/{leadId} {
+      allow read, write: if isAdmin();
+      allow create: if request.auth == null
+        && request.resource.data.keys().hasAll(['name', 'phone', 'pack', 'createdAt'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 1
+        && request.resource.data.name.size() < 100
+        && request.resource.data.phone is string
+        && request.resource.data.phone.size() >= 8
+        && request.resource.data.phone.size() < 25
+        && request.resource.data.pack is string
+        && (!('email' in request.resource.data) || (request.resource.data.email is string && request.resource.data.email.size() < 100))
+        && (!('projectInfo' in request.resource.data) || (request.resource.data.projectInfo is string && request.resource.data.projectInfo.size() < 2000));
+    }
+
+    match /gift_leads/{giftId} {
+      allow read, write: if isAdmin() || isConfirmationEmployee();
+      allow create: if request.auth == null
+        && request.resource.data.keys().hasAll(['name', 'email', 'resource', 'createdAt'])
+        && request.resource.data.name is string
+        && request.resource.data.email is string
+        && request.resource.data.email.size() < 100;
+    }
+
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

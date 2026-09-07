@@ -3,7 +3,8 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { db } from '../../lib/firebase';
+import { db, auth } from '../../lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 import { 
   collection, 
   onSnapshot, 
@@ -71,6 +72,42 @@ const STATUS_CONFIG = {
   lost: { label: 'ملغي / منسحب', color: '#DC2626', bg: 'rgba(239, 68, 68, 0.12)', nextStatus: null },
 };
 
+const getStatusLabel = (status) => STATUS_CONFIG[status]?.label || 'جديد';
+
+// ==================== BACKGROUND GOOGLE SHEETS SYNC (STORE) ====================
+const syncStoreToGoogleSheetsBackground = (actionType, record) => {
+  try {
+    const savedUrl = typeof window !== 'undefined' ? localStorage.getItem('google_sheet_store_webhook_url') : null;
+    if (!savedUrl) return;
+
+    let safeRecord = { ...record };
+    if (record?.status) {
+      safeRecord.status = getStatusLabel(record.status);
+    }
+    if (record && record.createdAt) {
+      if (typeof record.createdAt.toDate === 'function') {
+        safeRecord.date = record.createdAt.toDate().toISOString();
+      } else if (record.createdAt.seconds) {
+        safeRecord.date = new Date(record.createdAt.seconds * 1000).toISOString();
+      }
+    }
+
+    fetch(savedUrl, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        type: actionType,
+        record: safeRecord,
+        old_record: actionType === 'DELETE' ? { id: record.id, phone: record.phone } : undefined,
+        items: record?.items || undefined
+      })
+    });
+  } catch (e) {
+    console.log('Store Sheet sync note:', e);
+  }
+};
+
 const AdminCountdownTimer = ({ targetDate }) => {
   const [timeLeft, setTimeLeft] = useState('');
   
@@ -128,7 +165,41 @@ const Icons = {
   Phone: () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,
   PhoneMissed: () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="23" y1="1" x2="17" y2="7"/><line x1="17" y1="23" x2="23" y2="17"/><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,
   WhatsApp: () => <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12.01 2.014c-5.46 0-9.89 4.43-9.89 9.89 0 1.76.46 3.47 1.32 4.97L2 22l5.3-1.39c1.45.79 3.09 1.21 4.71 1.21 5.46 0 9.89-4.43 9.89-9.89 0-5.46-4.43-9.89-9.89-9.89zm5.39 14.24c-.23.65-1.33 1.23-1.84 1.32-.47.08-1.07.14-3.4-.82-2.82-1.16-4.63-4.04-4.77-4.23-.14-.19-1.14-1.52-1.14-2.9s.72-2.06.97-2.33c.25-.27.54-.34.72-.34s.36 0 .52.01c.17.01.39-.06.6.45.23.55.77 1.88.84 2.02.07.14.12.3.02.5-.09.19-.14.3-.29.49-.14.18-.3.39-.42.54-.14.16-.28.34-.12.61.16.28.71 1.18 1.53 1.91.56.5 1.34 1.05 1.65 1.21.31.16.5.14.69-.08.19-.22.82-.96 1.04-1.29.23-.33.45-.27.74-.17.29.1 1.84.87 2.16 1.03.32.16.53.24.6.38.08.14.08.82-.16 1.47z"/></svg>,
-  Search: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+  Search: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>,
+  GoogleSheets: () => (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+      <polyline points="14 2 14 8 20 8"/>
+      <line x1="8" y1="13" x2="16" y2="13"/>
+      <line x1="8" y1="17" x2="16" y2="17"/>
+      <line x1="10" y1="9" x2="10" y2="9.01"/>
+    </svg>
+  ),
+  Copy: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+      <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+    </svg>
+  ),
+  DownloadSimple: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/>
+      <line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  ),
+  ExternalLink: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/>
+      <line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+  ),
+  Sync: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+    </svg>
+  )
 };
 
 const INITIAL_STATE = {
@@ -150,6 +221,12 @@ export default function StoreAdminPage() {
   const [orderStatusFilter, setOrderStatusFilter] = useState('all');
   const [orderSearchQuery, setOrderSearchQuery] = useState('');
   
+  // تحديد جماعي للطلبات (Bulk Selection)
+  const [selectedOrderIds, setSelectedOrderIds] = useState(new Set());
+
+  // مودال Google Sheets
+  const [isGoogleSheetModalOpen, setIsGoogleSheetModalOpen] = useState(false);
+
   const [formData, setFormData] = useState(INITIAL_STATE);
   const [editingId, setEditingId] = useState(null);
   const [uploadingSlots, setUploadingSlots] = useState({ 0: false, 1: false, 2: false });
@@ -171,52 +248,37 @@ export default function StoreAdminPage() {
     return () => unsubscribe();
   }, []);
 
-  // 2. مزامنة كل طلبات المتجر لحظياً (المدفوعة من leads والمجانية من gift_leads)
+  // 2. مزامنة طلبات الهدايا المجانية فقط. مدفوعات leads تبقى للأدمن الرئيسي.
   useEffect(() => {
-    const qLeads = query(collection(db, 'leads'), orderBy('createdAt', 'desc'));
     const qGifts = query(collection(db, 'gift_leads'), orderBy('createdAt', 'desc'));
+    let unsubscribeGifts = () => {};
 
-    let leadsList = [];
-    let giftsList = [];
+    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
+      if (!currentUser) {
+        window.location.replace('/admin');
+        return;
+      }
 
-    const mergeAndSetOrders = () => {
-      const all = [...leadsList, ...giftsList].sort((a, b) => {
-        const timeA = a.createdAt?.seconds || (a.createdAt?.toDate ? a.createdAt.toDate().getTime() / 1000 : 0);
-        const timeB = b.createdAt?.seconds || (b.createdAt?.toDate ? b.createdAt.toDate().getTime() / 1000 : 0);
-        return timeB - timeA;
-      });
-      setStoreOrders(all);
-      setOrdersLoading(false);
-    };
-
-    const unsubLeads = onSnapshot(qLeads, (snap) => {
-      leadsList = [];
-      snap.forEach(d => {
-        const data = d.data();
-        if (data.source === 'store_checkout' || data.source === 'store' || (data.pack && data.pack.includes('متجر'))) {
-          leadsList.push({ id: d.id, isFromLeads: true, ...data });
-        }
-      });
-      mergeAndSetOrders();
-    }, () => setOrdersLoading(false));
-
-    const unsubGifts = onSnapshot(qGifts, (snap) => {
-      giftsList = [];
-      snap.forEach(d => {
-        const data = d.data();
-        giftsList.push({ 
-          id: d.id, 
-          isFromGifts: true, 
-          ...data, 
-          pack: data.pack || data.resource || 'منتج مجاني' 
+      unsubscribeGifts();
+      unsubscribeGifts = onSnapshot(qGifts, (snap) => {
+        const giftsList = [];
+        snap.forEach(d => {
+          const data = d.data();
+          giftsList.push({
+            id: d.id,
+            isFromGifts: true,
+            ...data,
+            pack: data.pack || data.resource || 'منتج مجاني'
+          });
         });
-      });
-      mergeAndSetOrders();
-    }, () => setOrdersLoading(false));
+        setStoreOrders(giftsList);
+        setOrdersLoading(false);
+      }, () => setOrdersLoading(false));
+    });
 
     return () => {
-      unsubLeads();
-      unsubGifts();
+      unsubscribeAuth();
+      unsubscribeGifts();
     };
   }, []);
 
@@ -246,6 +308,80 @@ export default function StoreAdminPage() {
       return true;
     });
   }, [storeOrders, orderStatusFilter, orderSearchQuery]);
+
+  // --- دوال التحديد الجماعي (Bulk Selection Handlers) ---
+  const toggleSelectOrder = (id) => {
+    setSelectedOrderIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAllOrders = () => {
+    if (selectedOrderIds.size === filteredOrders.length) {
+      setSelectedOrderIds(new Set());
+    } else {
+      setSelectedOrderIds(new Set(filteredOrders.map(o => o.id)));
+    }
+  };
+
+  const handleBulkDeleteOrders = () => {
+    if (selectedOrderIds.size === 0) return;
+    setConfirmDialog({
+      isOpen: true,
+      title: 'حذف الطلبات المحددة',
+      message: `هل أنت متأكد من حذف ${selectedOrderIds.size} طلب محدد نهائياً من السجلات؟`,
+      onConfirm: async () => {
+        setConfirmDialog(prev => ({ ...prev, isOpen: false }));
+        const toastId = showToast('جاري حذف الطلبات المحددة...', 'loading');
+        try {
+          const toDelete = storeOrders.filter(o => selectedOrderIds.has(o.id));
+          for (const order of toDelete) {
+            const colName = order.isFromGifts ? 'gift_leads' : 'leads';
+            await deleteDoc(doc(db, colName, order.id));
+          }
+
+          // مزامنة الحذف الجماعي مع Google Sheets
+          syncStoreToGoogleSheetsBackground('DELETE_BULK', {
+            items: toDelete.map(o => ({ id: o.id, phone: o.phone }))
+          });
+
+          setSelectedOrderIds(new Set());
+          updateToast(toastId, `تم حذف ${toDelete.length} طلب بنجاح.`, 'success');
+        } catch (err) {
+          updateToast(toastId, 'فشل حذف بعض الطلبات.', 'error');
+        }
+      }
+    });
+  };
+
+  const handleBulkStatusChangeOrders = async (newStatus) => {
+    if (selectedOrderIds.size === 0) return;
+    const toastId = showToast('جاري تحديث حالة الطلبات المحددة...', 'loading');
+    try {
+      const toUpdate = storeOrders.filter(o => selectedOrderIds.has(o.id));
+      for (const order of toUpdate) {
+        const colName = order.isFromGifts ? 'gift_leads' : 'leads';
+        await updateDoc(doc(db, colName, order.id), {
+          status: newStatus,
+          updatedAt: serverTimestamp()
+        });
+
+        // مزامنة التحديث مع Google Sheets
+        syncStoreToGoogleSheetsBackground('UPDATE', {
+          ...order,
+          status: newStatus
+        });
+      }
+
+      setSelectedOrderIds(new Set());
+      updateToast(toastId, `تم تغيير الحالة إلى: ${STATUS_CONFIG[newStatus]?.label || newStatus}`, 'success');
+    } catch (err) {
+      updateToast(toastId, 'فشل تحديث الحالة للطلبات المحددة.', 'error');
+    }
+  };
 
   // --- Toast Manager ---
   const showToast = (message, type = 'success') => {
@@ -387,6 +523,13 @@ export default function StoreAdminPage() {
         status: newStatus,
         updatedAt: serverTimestamp()
       });
+
+      // مزامنة الشيت تلقائياً في الخلفية
+      syncStoreToGoogleSheetsBackground('UPDATE', {
+        ...order,
+        status: newStatus
+      });
+
       showToast(`تم تحديث الحالة إلى: ${STATUS_CONFIG[newStatus]?.label || newStatus}`, 'success');
     } catch (err) {
       showToast('فشل تحديث الحالة', 'error');
@@ -413,6 +556,14 @@ export default function StoreAdminPage() {
         status: 'no_answer',
         updatedAt: serverTimestamp()
       });
+
+      // مزامنة التحديث في الشيت
+      syncStoreToGoogleSheetsBackground('UPDATE', {
+        ...order,
+        notes: newNotes,
+        status: 'no_answer'
+      });
+
       showToast('تم تسجيل: لم يرد', 'success');
     } catch (e) {
       showToast('حدث خطأ', 'error');
@@ -441,6 +592,13 @@ export default function StoreAdminPage() {
       }
 
       await updateDoc(doc(db, colName, editingOrder.id), updates);
+
+      // مزامنة التعديل في الشيت
+      syncStoreToGoogleSheetsBackground('UPDATE', {
+        ...editingOrder,
+        ...updates
+      });
+
       showToast('تم تحديث بيانات وحالة الطلب بنجاح', 'success');
       setEditingOrder(null);
     } catch (err) {
@@ -459,6 +617,13 @@ export default function StoreAdminPage() {
         setConfirmDialog(prev => ({ ...prev, isOpen: false }));
         try {
           await deleteDoc(doc(db, colName, order.id));
+
+          // مزامنة حذف السطر من الشيت
+          syncStoreToGoogleSheetsBackground('DELETE', {
+            id: order.id,
+            phone: order.phone || ''
+          });
+
           showToast('تم حذف الطلب بنجاح', 'success');
         } catch (err) {
           showToast('فشل الحذف', 'error');
@@ -495,10 +660,23 @@ export default function StoreAdminPage() {
               <p className={styles.desc}>Boostra Agency — إدارة المنتجات الرقمية والطلبيات</p>
             </div>
           </div>
-          <Link href="/admin" className={styles.btnSecondary}>
-            <span>العودة للوحة الإدارة</span>
-            <span>←</span>
-          </Link>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <button
+              type="button"
+              onClick={() => setIsGoogleSheetModalOpen(true)}
+              className={styles.btnGoogleSheetsHeader}
+              title="تصدير ومزامنة طلبات المتجر مع Google Sheets"
+            >
+              <Icons.GoogleSheets />
+              <span>Google Sheets</span>
+            </button>
+
+            <Link href="/admin" className={styles.btnSecondary}>
+              <span>العودة للوحة الإدارة</span>
+              <span>←</span>
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -628,6 +806,16 @@ export default function StoreAdminPage() {
                       <h2 className={styles.cardTitle}>طلبيات ومبيعات المتجر الرقمي</h2>
                       <p style={{ fontSize: '12px', color: '#64748B', margin: '4px 0 0 0' }}>متابعة طلبات شراء الأدوات والموارد وتأكيد الدفع والتسليم</p>
                     </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsGoogleSheetModalOpen(true)}
+                      className={styles.btnGoogleSheetsSmall}
+                      title="مزامنة وتصدير إلى Google Sheets"
+                    >
+                      <Icons.GoogleSheets />
+                      <span>تصدير Google Sheets</span>
+                    </button>
                   </div>
 
                   {/* شريط إحصائيات الحالات الموحد */}
@@ -677,6 +865,27 @@ export default function StoreAdminPage() {
                     )}
                   </div>
 
+                  {/* شريط تحديد الكل المعتمد */}
+                  <div className={styles.selectAllHeader}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <input
+                        type="checkbox"
+                        checked={selectedOrderIds.size === filteredOrders.length && filteredOrders.length > 0}
+                        onChange={toggleSelectAllOrders}
+                        style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#0000FF' }}
+                      />
+                      <span style={{ fontSize: '13px', fontWeight: 600, color: '#64748B' }}>
+                        تحديد الكل ({filteredOrders.length})
+                      </span>
+                    </div>
+
+                    {selectedOrderIds.size > 0 && (
+                      <span style={{ fontSize: '13px', color: '#0000FF', fontWeight: 700 }}>
+                        تم تحديد {selectedOrderIds.size} طلب
+                      </span>
+                    )}
+                  </div>
+
                   {/* شبكة بطاقات الطلبات */}
                   {ordersLoading ? (
                     <div className={styles.loaderContainer}>
@@ -696,15 +905,27 @@ export default function StoreAdminPage() {
                         const cleanPhone = (order.phone || '').replace(/[^0-9]/g, '');
                         const waNumber = cleanPhone.startsWith('0') && cleanPhone.length === 10 ? '213' + cleanPhone.substring(1) : cleanPhone;
                         const waText = encodeURIComponent(`مرحباً ${order.name || 'صديقنا'}، معك فريق Boostra Agency بخصوص طلبك لـ "${order.pack || 'المنتج الرقمي'}".`);
+                        const isSelected = selectedOrderIds.has(order.id);
 
                         return (
-                          <div key={order.id} className={styles.storeOrderCard}>
+                          <div 
+                            key={order.id} 
+                            className={`${styles.storeOrderCard} ${isSelected ? styles.storeOrderCardSelected : ''}`}
+                          >
                             
                             {/* رأس بطاقة الطلب */}
                             <div className={styles.orderCardHeader}>
-                              <div>
-                                <h3 className={styles.orderClientName}>{order.name || 'بدون اسم'}</h3>
-                                <span className={styles.orderTimeAgo}>{timeAgo(order.createdAt)}</span>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <input
+                                  type="checkbox"
+                                  checked={isSelected}
+                                  onChange={() => toggleSelectOrder(order.id)}
+                                  style={{ width: '17px', height: '17px', cursor: 'pointer', accentColor: '#0000FF' }}
+                                />
+                                <div>
+                                  <h3 className={styles.orderClientName}>{order.name || 'بدون اسم'}</h3>
+                                  <span className={styles.orderTimeAgo}>{timeAgo(order.createdAt)}</span>
+                                </div>
                               </div>
 
                               <span className={styles.orderStatusBadge} style={{ backgroundColor: statusConf.bg, color: statusConf.color, border: `1px solid ${statusConf.color}30` }}>
@@ -968,6 +1189,165 @@ export default function StoreAdminPage() {
         </div>
       </main>
 
+      {/* =========================================================================
+          شريط الإجراءات الجماعية العائم (Prominent Bulk Floating Dock)
+         ========================================================================= */}
+      {activeTab === 'orders' && selectedOrderIds.size > 0 && (
+        <div className={styles.prominentBulkBar}>
+          
+          {/* شريط الديسكتوب المتناسق والبارز */}
+          <div className={styles.bulkBarDesktopLayout}>
+            <div className={styles.bulkBadgeBox}>
+              <span className={styles.bulkCountBadge}>{selectedOrderIds.size}</span>
+              <span className={styles.bulkCountTxt}>طلبات محددة</span>
+            </div>
+
+            <div className={styles.bulkVerticalLine} />
+
+            <div className={styles.bulkStatusRow}>
+              <span className={styles.bulkSectionLabel}>تغيير الحالة إلى:</span>
+              <button 
+                type="button"
+                onClick={() => handleBulkStatusChangeOrders('contacted')} 
+                className={styles.bulkActionPill}
+              >
+                <span className={styles.colorDot} style={{ backgroundColor: STATUS_CONFIG.contacted.color }} />
+                تم الاتصال
+              </button>
+              <button 
+                type="button"
+                onClick={() => handleBulkStatusChangeOrders('no_answer')} 
+                className={styles.bulkActionPill}
+              >
+                <span className={styles.colorDot} style={{ backgroundColor: STATUS_CONFIG.no_answer.color }} />
+                لم يرد
+              </button>
+              <button 
+                type="button"
+                onClick={() => handleBulkStatusChangeOrders('qualified')} 
+                className={styles.bulkActionPill}
+              >
+                <span className={styles.colorDot} style={{ backgroundColor: STATUS_CONFIG.qualified.color }} />
+                مؤهل للشراء
+              </button>
+              <button 
+                type="button"
+                onClick={() => handleBulkStatusChangeOrders('converted')} 
+                className={styles.bulkActionPill}
+              >
+                <span className={styles.colorDot} style={{ backgroundColor: STATUS_CONFIG.converted.color }} />
+                تم البيع
+              </button>
+              <button 
+                type="button"
+                onClick={() => handleBulkStatusChangeOrders('lost')} 
+                className={styles.bulkActionPill}
+              >
+                <span className={styles.colorDot} style={{ backgroundColor: STATUS_CONFIG.lost.color }} />
+                ملغي
+              </button>
+            </div>
+
+            <div className={styles.bulkVerticalLine} />
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <button 
+                type="button"
+                onClick={handleBulkDeleteOrders} 
+                className={styles.bulkDeleteProminent}
+              >
+                <Icons.Trash />
+                <span>حذف المحدد</span>
+              </button>
+
+              <button 
+                type="button"
+                onClick={() => setSelectedOrderIds(new Set())} 
+                className={styles.bulkDismissBtn} 
+                title="إلغاء التحديد"
+              >
+                <Icons.Close />
+              </button>
+            </div>
+          </div>
+
+          {/* شريط الموبايل المنظم (Mobile 2-Tier Dock) */}
+          <div className={styles.bulkBarMobileDock}>
+            <div className={styles.bulkMTopRow}>
+              <div className={styles.bulkBadgeBox}>
+                <span className={styles.bulkCountBadge}>{selectedOrderIds.size}</span>
+                <span className={styles.bulkCountTxt} style={{ fontSize: '13px' }}>طلبات محددة</span>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <button 
+                  type="button"
+                  onClick={handleBulkDeleteOrders} 
+                  className={styles.bulkDeleteProminentMobile}
+                >
+                  <Icons.Trash />
+                  <span>حذف ({selectedOrderIds.size})</span>
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => setSelectedOrderIds(new Set())} 
+                  className={styles.bulkDismissBtn}
+                >
+                  <Icons.Close />
+                </button>
+              </div>
+            </div>
+
+            <div className={styles.bulkMStatusGrid}>
+              <button 
+                type="button"
+                onClick={() => handleBulkStatusChangeOrders('contacted')} 
+                className={styles.bulkMChip}
+              >
+                تم الاتصال
+              </button>
+              <button 
+                type="button"
+                onClick={() => handleBulkStatusChangeOrders('no_answer')} 
+                className={styles.bulkMChip}
+              >
+                لم يرد
+              </button>
+              <button 
+                type="button"
+                onClick={() => handleBulkStatusChangeOrders('qualified')} 
+                className={styles.bulkMChip}
+              >
+                مؤهل
+              </button>
+              <button 
+                type="button"
+                onClick={() => handleBulkStatusChangeOrders('converted')} 
+                className={styles.bulkMChip}
+              >
+                تم البيع
+              </button>
+              <button 
+                type="button"
+                onClick={() => handleBulkStatusChangeOrders('lost')} 
+                className={styles.bulkMChip}
+              >
+                ملغي
+              </button>
+            </div>
+          </div>
+
+        </div>
+      )}
+
+      {/* --- نافذة تصدير ومزامنة GOOGLE SHEETS لطلبات المتجر --- */}
+      <GoogleSheetsStoreModal
+        isOpen={isGoogleSheetModalOpen}
+        onClose={() => setIsGoogleSheetModalOpen(false)}
+        orders={filteredOrders}
+        showToast={showToast}
+      />
+
       {/* --- مودال تعديل بيانات وحالة الطلب عبر EMAILMODAL الموحد --- */}
       <EmailModal
         isOpen={Boolean(editingOrder)}
@@ -1117,5 +1497,235 @@ export default function StoreAdminPage() {
         ))}
       </div>
     </div>
+  );
+}
+
+// ==================== مودال GOOGLE SHEETS المخصص لطلبات المتجر ====================
+function GoogleSheetsStoreModal({ isOpen, onClose, orders, showToast }) {
+  const [copied, setCopied] = useState(false);
+  const [webhookUrl, setWebhookUrl] = useState('');
+  const [syncing, setSyncing] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('google_sheet_store_webhook_url');
+      if (saved) setWebhookUrl(saved);
+    }
+  }, []);
+
+  const copyForGoogleSheets = async () => {
+    try {
+      const headers = ['اسم الزبون', 'رقم الهاتف', 'البريد الإلكتروني', 'المنتج المطلوب', 'نوع الطلب', 'الحالة', 'ملاحظات المتابعة', 'تاريخ الطلب'];
+      const rows = orders.map(o => [
+        o.name || 'بدون اسم',
+        o.phone ? "'" + String(o.phone).trim() : '',
+        o.email || '',
+        o.pack || o.resource || o.productTitle || '',
+        o.isFromGifts ? 'مورد مجاني' : 'طلب شراء متجر',
+        getStatusLabel(o.status),
+        (o.notes || '').replace(/\r?\n/g, ' '),
+        o.createdAt?.toDate ? o.createdAt.toDate().toLocaleString('ar-DZ') : ''
+      ]);
+
+      const tsv = [headers.join('\t'), ...rows.map(r => r.join('\t'))].join('\n');
+      await navigator.clipboard.writeText(tsv);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 3000);
+      showToast('تم نسخ بيانات طلبات المتجر بتنسيق جداول البيانات', 'success');
+    } catch (e) {
+      showToast('تعذر نسخ البيانات', 'error');
+    }
+  };
+
+  const downloadStoreCsv = () => {
+    try {
+      const headers = ['اسم الزبون', 'رقم الهاتف', 'البريد الإلكتروني', 'المنتج المطلوب', 'نوع الطلب', 'الحالة', 'ملاحظات المتابعة', 'تاريخ الطلب'];
+      const rows = orders.map(o => [
+        `"${(o.name || '').replace(/"/g, '""')}"`,
+        `"${(o.phone || '').replace(/"/g, '""')}"`,
+        `"${(o.email || '').replace(/"/g, '""')}"`,
+        `"${(o.pack || o.resource || o.productTitle || '').replace(/"/g, '""')}"`,
+        `"${o.isFromGifts ? 'مورد مجاني' : 'طلب شراء متجر'}"`,
+        `"${getStatusLabel(o.status)}"`,
+        `"${(o.notes || '').replace(/"/g, '""')}"`,
+        `"${o.createdAt?.toDate ? o.createdAt.toDate().toLocaleString('ar-DZ') : ''}"`
+      ]);
+
+      const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `boostra_store_orders_${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('تم تنزيل ملف CSV بنجاح', 'success');
+    } catch (e) {
+      showToast('فشل تصدير ملف CSV', 'error');
+    }
+  };
+
+  const syncToWebhook = async () => {
+    if (!webhookUrl.trim()) {
+      showToast('يرجى إدخال رابط Webhook الخاص بـ Google Sheet أولاً', 'error');
+      return;
+    }
+
+    setSyncing(true);
+    try {
+      localStorage.setItem('google_sheet_store_webhook_url', webhookUrl.trim());
+      const payload = {
+        orders: orders.map(o => ({
+          id: o.id,
+          name: o.name || 'بدون اسم',
+          phone: o.phone || '',
+          email: o.email || '',
+          pack: o.pack || o.resource || o.productTitle || 'منتج غير محدد',
+          isFromGifts: Boolean(o.isFromGifts),
+          status: getStatusLabel(o.status),
+          notes: o.notes || '',
+          date: o.createdAt?.toDate ? o.createdAt.toDate().toLocaleString('ar-DZ') : ''
+        }))
+      };
+
+      await fetch(webhookUrl.trim(), {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload),
+      });
+
+      showToast('تم إرسال أمر المزامنة لـ Google Sheets بنجاح!', 'success');
+    } catch (e) {
+      showToast('تعذر إرسال البيانات للـ Webhook', 'error');
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  return (
+    <EmailModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="تصدير ومزامنة طلبات المتجر مع Google Sheets"
+      subtitle="إدارة وتصدير كل طلبيات الأدوات والموارد ومزامنتها لحظياً مع جدولك السحابي."
+      maxWidth="540px"
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        
+        {/* الخيار 1: نسخ فوري */}
+        <div
+          onClick={copyForGoogleSheets}
+          className={styles.gsOptionCard}
+          style={{
+            borderColor: copied ? '#10B981' : 'rgba(15, 23, 42, 0.08)',
+            backgroundColor: copied ? 'rgba(16, 185, 129, 0.06)' : 'rgba(15, 23, 42, 0.02)'
+          }}
+        >
+          <div className={styles.gsOptionIcon} style={{ backgroundColor: copied ? 'rgba(16, 185, 129, 0.15)' : 'rgba(0, 0, 255, 0.08)', color: copied ? '#10B981' : '#0000FF' }}>
+            <Icons.Copy />
+          </div>
+          <div>
+            <span style={{ fontSize: '13.5px', fontWeight: 800, color: '#0F172A', display: 'block' }}>
+              {copied ? 'تم النسخ بنجاح! الصق الآن (Ctrl+V) في الشيت الجديد' : 'نسخ بتنسيق Google Sheets (الموصى به)'}
+            </span>
+            <span style={{ fontSize: '11.5px', color: '#64748B' }}>
+              انسخ كل طلبيات المتجر الحالية بضغطة واحدة وافتح جدول الشيت والصقها فورا.
+            </span>
+          </div>
+        </div>
+
+        {/* الخيار 2: تنزيل CSV */}
+        <div onClick={downloadStoreCsv} className={styles.gsOptionCard}>
+          <div className={styles.gsOptionIcon} style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#059669' }}>
+            <Icons.DownloadSimple />
+          </div>
+          <div>
+            <span style={{ fontSize: '13.5px', fontWeight: 800, color: '#0F172A', display: 'block' }}>
+              تحميل ملف CSV متوافق باللغة العربية
+            </span>
+            <span style={{ fontSize: '11.5px', color: '#64748B' }}>
+              ملف مهيأ بحروف UTF-8 يفتح بدون أي تشويه في الإكسل وGoogle Sheets.
+            </span>
+          </div>
+        </div>
+
+        {/* الخيار 3: فتح صفحة جديدة */}
+        <a
+          href="https://sheets.new"
+          target="_blank"
+          rel="noreferrer"
+          className={styles.gsOptionCard}
+          style={{ textDecoration: 'none' }}
+        >
+          <div className={styles.gsOptionIcon} style={{ backgroundColor: 'rgba(0, 0, 255, 0.08)', color: '#0000FF' }}>
+            <Icons.ExternalLink />
+          </div>
+          <div>
+            <span style={{ fontSize: '13.5px', fontWeight: 800, color: '#0F172A', display: 'block' }}>
+              فتح صفحة Google Sheet جديدة
+            </span>
+            <span style={{ fontSize: '11.5px', color: '#64748B' }}>
+              ينقلك مباشرة لإنشاء شيت فارغ في حساب Google للصق الطلبات فيه.
+            </span>
+          </div>
+        </a>
+
+        {/* قسم الـ Webhook التلقائي */}
+        <div style={{ borderTop: '1px solid rgba(15, 23, 42, 0.08)', paddingTop: '14px', marginTop: '6px' }}>
+          <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#0F172A', display: 'block', marginBottom: '6px' }}>
+            المزامنة السحابية التلقائية (Google Apps Script Webhook لمتجر الموارد):
+          </span>
+          <p style={{ fontSize: '11.5px', color: '#64748B', margin: '0 0 10px 0', lineHeight: 1.5 }}>
+            ألصق رابط نشر الـ Webhook الخاص بالشيت الجديد ليتم تحديثه وحذف الطلبات منه تلقائياً:
+          </p>
+
+          <input
+            type="url"
+            value={webhookUrl}
+            onChange={(e) => setWebhookUrl(e.target.value)}
+            placeholder="https://script.google.com/macros/s/.../exec"
+            style={{
+              width: '100%',
+              padding: '10px 14px',
+              borderRadius: '12px',
+              border: '1px solid rgba(15, 23, 42, 0.1)',
+              backgroundColor: '#F8FAFC',
+              fontSize: '12.5px',
+              outline: 'none',
+              direction: 'ltr',
+              marginBottom: '10px',
+              boxSizing: 'border-box'
+            }}
+          />
+
+          <button
+            type="button"
+            onClick={syncToWebhook}
+            disabled={syncing}
+            style={{
+              width: '100%',
+              padding: '11px',
+              borderRadius: '12px',
+              border: 'none',
+              backgroundColor: '#0000FF',
+              color: '#FFFFFF',
+              fontWeight: 700,
+              fontSize: '13px',
+              cursor: syncing ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              boxShadow: '0 4px 14px rgba(0, 0, 255, 0.25)'
+            }}
+          >
+            <Icons.Sync />
+            {syncing ? 'جاري المزامنة...' : 'مزامنة طلبات المتجر السحابية الآن'}
+          </button>
+        </div>
+
+      </div>
+    </EmailModal>
   );
 }
