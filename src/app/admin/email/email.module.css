@@ -1,0 +1,788 @@
+/* src/app/admin/email/email.module.css */
+
+.emailApp {
+  min-height: 100vh;
+  background-color: #F8FAFC;
+  color: #0F172A;
+  direction: rtl;
+  font-family: inherit;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* =========================================
+   1. AURORA CANVAS (BACKGROUND)
+   ========================================= */
+.auroraCanvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.auroraOrb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.42;
+  will-change: transform;
+}
+
+.orbHero {
+  top: -5%;
+  right: -5%;
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(circle, rgba(0, 0, 255, 0.48) 0%, rgba(0, 197, 222, 0.28) 50%, transparent 75%);
+  animation: floatOrbAdmin1 22s infinite ease-in-out;
+}
+
+.orbMiddle {
+  top: 40%;
+  left: -8%;
+  width: 480px;
+  height: 480px;
+  background: radial-gradient(circle, rgba(0, 197, 222, 0.38) 0%, rgba(0, 0, 255, 0.25) 55%, transparent 75%);
+  animation: floatOrbAdmin2 26s infinite ease-in-out;
+}
+
+.orbBottom {
+  bottom: -8%;
+  right: 15%;
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, rgba(0, 0, 255, 0.35) 0%, rgba(56, 189, 248, 0.22) 60%, transparent 75%);
+  animation: floatOrbAdmin1 24s infinite ease-in-out reverse;
+}
+
+@keyframes floatOrbAdmin1 {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-50px, 55px, 0) scale(0.92); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes floatOrbAdmin2 {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(65px, -40px, 0) scale(0.94); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
+/* =========================================
+   2. ORCHESTRATOR HEADER
+   ========================================= */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  background: rgba(248, 250, 252, 0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  padding: 12px 24px;
+}
+
+.headerInner {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.brandGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.title {
+  font-size: 17px;
+  font-weight: 800;
+  margin: 0;
+  color: #0F172A;
+  letter-spacing: -0.01em;
+}
+
+.desc {
+  font-size: 11.5px;
+  color: #64748B;
+  margin: 0;
+}
+
+.statusPill {
+  font-size: 10.5px;
+  font-weight: 700;
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  padding: 2px 8px;
+  border-radius: 100px;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.btnSecondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-decoration: none !important;
+  cursor: pointer;
+  background: #FFFFFF;
+  color: #0F172A;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+  transition: all 0.2s ease;
+}
+
+.btnSecondary:hover {
+  border-color: #0000FF;
+  color: #0000FF;
+  transform: translateY(-1px);
+}
+
+/* =========================================
+   3. LAYOUT & SIDE TRAIL
+   ========================================= */
+.mainContainer {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px 20px;
+  position: relative;
+  z-index: 10;
+}
+
+.layoutGrid {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.sideTrail {
+  position: sticky;
+  top: 88px;
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 24px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border: none !important;
+  box-shadow: 0 4px 20px -4px rgba(15, 23, 42, 0.03);
+}
+
+.sideMenu {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.trailItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: inherit;
+}
+
+.trailItem:hover {
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateX(-2px);
+}
+
+.trailItemActive {
+  background: rgba(0, 0, 255, 0.06);
+  border-color: rgba(0, 0, 255, 0.16);
+}
+
+.trailLabel {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.trailItemActive .trailLabel {
+  color: #0000FF;
+  font-weight: 800;
+}
+
+.trailCounter {
+  font-size: 11px;
+  font-weight: 800;
+  background: rgba(15, 23, 42, 0.06);
+  color: #64748B;
+  padding: 2px 8px;
+  border-radius: 100px;
+}
+
+.trailItemActive .trailCounter {
+  background: #0000FF;
+  color: #FFFFFF;
+}
+
+.trailBadge {
+  font-size: 10px;
+  font-weight: 800;
+  background: rgba(0, 0, 255, 0.1);
+  color: #0000FF;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.trailFooterBox {
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.025);
+  border: 1px solid rgba(15, 23, 42, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.senderIndicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.indicatorDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10B981;
+}
+
+.senderText {
+  font-size: 11px;
+  font-weight: 700;
+  color: #0F172A;
+  direction: ltr;
+}
+
+.senderSub {
+  font-size: 10px;
+  color: #64748B;
+}
+
+.viewportArea {
+  min-width: 0;
+}
+
+/* =========================================
+   4. BOOSTRA BRAND CARDS (FROSTED & SEAMLESS)
+   ========================================= */
+.boostraCard {
+  position: relative;
+  border-radius: 28px;
+  overflow: hidden;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  border: none !important;
+  box-shadow: none !important;
+  background: radial-gradient(
+    ellipse at 100% 0%,
+    rgba(255, 255, 255, 0.75) 0%,
+    rgba(255, 255, 255, 0.35) 45%,
+    rgba(255, 255, 255, 0.0) 75%,
+    transparent 100%
+  ) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.cardContent {
+  position: relative;
+  z-index: 2;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  margin-bottom: 18px;
+}
+
+.cardTitle {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0;
+}
+
+.liveTag {
+  font-size: 11px;
+  font-weight: 800;
+  color: #0000FF;
+  background: rgba(0, 0, 255, 0.06);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+/* =========================================
+   5. TOP ACTION STRIP
+   ========================================= */
+.actionStrip {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 18px;
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.clusterLabel {
+  font-size: 13px;
+  color: #64748B;
+  font-weight: 600;
+}
+
+.clusterCounter {
+  font-size: 13px;
+  font-weight: 800;
+  color: #0000FF;
+  background: rgba(0, 0, 255, 0.08);
+  padding: 2px 10px;
+  border-radius: 100px;
+}
+
+.btnInspect {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0F172A;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btnInspect:hover {
+  background: #FFFFFF;
+  border-color: #0000FF;
+  color: #0000FF;
+}
+
+.deviceSwitcher {
+  display: flex;
+  background: rgba(15, 23, 42, 0.04);
+  padding: 3px;
+  border-radius: 8px;
+  gap: 2px;
+}
+
+.deviceBtn {
+  border: none;
+  background: transparent;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #64748B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.deviceBtnActive {
+  background: #FFFFFF;
+  color: #0000FF;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+}
+
+.btnTest {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 255, 0.06);
+  color: #0000FF;
+  border: 1.5px solid rgba(0, 0, 255, 0.14);
+  padding: 7px 14px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btnTest:hover {
+  background: #0000FF;
+  color: #FFFFFF;
+}
+
+/* =========================================
+   6. TACTILE INPUTS (OPEN FORM STYLE)
+   ========================================= */
+.tactileFieldUnit {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.tactileLabelTitle {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #0F172A;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tactileInput {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid rgba(15, 23, 42, 0.08);
+  padding: 14px 10px;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #0F172A;
+  outline: none;
+  transition: all 0.25s ease;
+  box-sizing: border-box;
+}
+
+.tactileInput:focus {
+  border-bottom-color: #0000FF;
+  background: rgba(0, 0, 255, 0.04);
+  padding-right: 18px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.tactileInput::placeholder {
+  color: #94A3B8;
+  font-weight: 400;
+}
+
+.tactileTextarea {
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.7;
+}
+
+.ltrInput {
+  direction: ltr;
+  text-align: left;
+}
+
+/* =========================================
+   7. BUTTONS & PILLS
+   ========================================= */
+.tokenBtn {
+  background: rgba(0, 0, 255, 0.06);
+  color: #0000FF;
+  border: 1px solid rgba(0, 0, 255, 0.14);
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tokenBtn:hover {
+  background: #0000FF;
+  color: #FFFFFF;
+}
+
+.segmentPill {
+  padding: 6px 12px;
+  border-radius: 16px;
+  background: #FFFFFF;
+  border: 1.5px solid rgba(15, 23, 42, 0.08);
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 12px;
+  color: #64748B;
+  transition: all 0.2s ease;
+}
+
+.segmentPillActive {
+  background: rgba(0, 0, 255, 0.05);
+  border-color: #0000FF;
+  color: #0000FF;
+}
+
+.btnLaunchCampaign {
+  width: 100%;
+  height: 50px;
+  border-radius: 14px;
+  border: none;
+  background: #0000FF;
+  color: #FFFFFF;
+  font-size: 0.98rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 255, 0.28);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: inherit;
+  margin-top: 10px;
+}
+
+.btnLaunchCampaign:hover:not(:disabled) {
+  background: #0000D8;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 0, 255, 0.38);
+}
+
+.btnLaunchCampaign:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =========================================
+   8. PREVIEW SIMULATION CHASSIS
+   ========================================= */
+.previewDeviceChassis {
+  background: #090E17;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+  margin-top: auto;
+}
+
+.previewEmailSheet {
+  background: #FFFFFF;
+  margin: 12px;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.brandCardHeader {
+  background: #0F172A;
+  padding: 22px 18px;
+  text-align: center;
+  border-bottom: 3px solid #0000FF;
+}
+
+.brandBadge {
+  display: inline-block;
+  background: #0000FF;
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.brandSubject {
+  color: #FFFFFF;
+  font-size: 14px;
+  margin: 0;
+  font-weight: 700;
+}
+
+.brandBody {
+  padding: 22px 18px;
+  color: #0F172A;
+}
+
+.saluteText {
+  font-weight: 700;
+  font-size: 13.5px;
+  margin: 0 0 10px 0;
+}
+
+.paragraphText {
+  font-size: 12.5px;
+  color: #475569;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.previewCtaBtn {
+  display: inline-block;
+  background: #0000FF;
+  color: #FFFFFF;
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 10px 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 255, 0.28);
+}
+
+.brandFooter {
+  background: #F8FAFC;
+  padding: 14px;
+  text-align: center;
+  font-size: 10.5px;
+  color: #94A3B8;
+  border-top: 1px solid rgba(15, 23, 42, 0.05);
+}
+
+/* =========================================
+   9. MODALS
+   ========================================= */
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modalWindow {
+  background: #FFFFFF;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 480px;
+  padding: 24px;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.15);
+}
+
+.modalWindowWide {
+  max-width: 700px;
+}
+
+.modalTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  margin-bottom: 16px;
+}
+
+.modalTitle {
+  font-size: 15px;
+  font-weight: 800;
+  margin: 0;
+  color: #0F172A;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #64748B;
+  display: flex;
+}
+
+.modalBody {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.modalText {
+  font-size: 13px;
+  color: #64748B;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.btnCancel {
+  background: #F1F5F9;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btnConfirm {
+  background: #0000FF;
+  color: #FFFFFF;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.modalScroll {
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+.table th {
+  text-align: right;
+  padding: 10px;
+  background: #F8FAFC;
+  color: #64748B;
+  font-weight: 700;
+}
+
+.table td {
+  padding: 10px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+}
+
+.statusChip {
+  font-size: 10.5px;
+  font-weight: 700;
+  background: rgba(0, 0, 255, 0.06);
+  color: #0000FF;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+@media (max-width: 900px) {
+  .layoutGrid {
+    grid-template-columns: 1fr;
+  }
+  .sideTrail {
+    position: relative;
+    top: 0;
+  }
+  .sideMenu {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

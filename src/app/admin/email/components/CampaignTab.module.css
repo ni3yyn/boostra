@@ -1,0 +1,641 @@
+/* src/app/admin/email/components/CampaignTab.module.css */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 1. شريط الأدوات العلوي */
+.topBar {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 16px;
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  box-shadow: 0 4px 18px -4px rgba(15, 23, 42, 0.03);
+}
+
+.statsCluster {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.clusterLabel {
+  font-size: 13px;
+  color: #64748B;
+  font-weight: 600;
+}
+
+.clusterCounter {
+  font-size: 13px;
+  font-weight: 800;
+  color: #0000FF;
+  background: rgba(0, 0, 255, 0.08);
+  padding: 2px 10px;
+  border-radius: 100px;
+}
+
+.btnAddRecipient {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 255, 0.06);
+  border: 1px solid rgba(0, 0, 255, 0.15);
+  color: #0000FF;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.btnAddRecipient:hover {
+  background: #0000FF;
+  color: #FFFFFF;
+}
+
+.buttonsCluster {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.deviceSwitcher {
+  display: flex;
+  background: rgba(15, 23, 42, 0.05);
+  padding: 3px;
+  border-radius: 8px;
+  gap: 2px;
+}
+
+.deviceBtn {
+  border: none;
+  background: transparent;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #64748B;
+  font-size: 12px;
+  font-weight: 700;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.deviceBtnActive {
+  background: #FFFFFF;
+  color: #0000FF;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+}
+
+.btnTest {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  padding: 7px 14px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btnTest:hover {
+  background: #10B981;
+  color: #FFFFFF;
+}
+
+/* 2. الشبكة الرئيسية المنظمة */
+.coreGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(360px, 0.85fr);
+  gap: 24px;
+  align-items: start;
+}
+
+/* 
+  3. كرت لوحة التحكم بهوية Boostra:
+  حدود Dashboard حقيقية مع تلاشي وقناع يقطع الحد في الأسفل واليسار بنسبة 100%!
+*/
+.dashboardCard {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  isolation: isolate;
+  background: radial-gradient(
+    ellipse at 100% 0%,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(255, 255, 255, 0.45) 55%,
+    rgba(255, 255, 255, 0.0) 85%,
+    transparent 100%
+  ) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 4px 20px -4px rgba(15, 23, 42, 0.03);
+}
+
+/* إطار الـ Dashboard مع قناع يمحو الإطار في الأسفل واليسار ليظهر الباترن حراً */
+.dashboardCard::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  pointer-events: none;
+  z-index: 1;
+  -webkit-mask-image: radial-gradient(circle at 0% 100%, transparent 0%, transparent 90px, black 170px);
+  mask-image: radial-gradient(circle at 0% 100%, transparent 0%, transparent 90px, black 170px);
+}
+
+.cardContent {
+  position: relative;
+  z-index: 2;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.cardHeaderTitle {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0 0 16px 0;
+  letter-spacing: -0.01em;
+}
+
+/* 4. شرائح الفئات */
+.segmentsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.segmentPill {
+  padding: 6px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 12px;
+  color: #64748B;
+  transition: all 0.2s ease;
+}
+
+.segmentPill:hover {
+  border-color: #0000FF;
+  color: #0000FF;
+}
+
+.segmentPillActive {
+  background: rgba(0, 0, 255, 0.08);
+  border-color: #0000FF;
+  color: #0000FF;
+  font-weight: 700;
+}
+
+/* 5. صندوق إدارة وتحديد المستلمين المدمج */
+.recipientsManagerBox {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 14px;
+  padding: 12px;
+  margin-bottom: 18px;
+}
+
+.managerHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.searchInput {
+  width: 70%;
+  height: 34px;
+  background: #FFFFFF;
+  border: 1px solid rgba(15, 23, 42, 0.09);
+  border-radius: 8px;
+  padding: 0 10px;
+  font-size: 12px;
+  outline: none;
+  font-family: inherit;
+}
+
+.searchInput:focus {
+  border-color: #0000FF;
+}
+
+.btnInvertSelect {
+  background: none;
+  border: none;
+  color: #0000FF;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.recipientsListScroll {
+  max-height: 220px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding-left: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(15, 23, 42, 0.14) transparent;
+}
+
+.recipientsListScroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.recipientsListScroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.recipientsListScroll::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.14);
+  border-radius: 10px;
+}
+
+.recipientsListScroll::-webkit-scrollbar-thumb:hover {
+  background: #0000FF;
+}
+
+.listFooterCounter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 8px;
+  margin-top: 6px;
+  border-top: 1px solid rgba(15, 23, 42, 0.05);
+  font-size: 11.5px;
+  color: #64748B;
+  font-weight: 600;
+}
+
+.btnLoadMore {
+  background: none;
+  border: none;
+  color: #0000FF;
+  font-weight: 700;
+  font-size: 11.5px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.btnLoadMore:hover {
+  background: rgba(0, 0, 255, 0.06);
+}
+
+.recipientRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(15, 23, 42, 0.04);
+  transition: background 0.15s ease;
+}
+
+.recipientRowIncluded {
+  background: rgba(0, 0, 255, 0.03);
+  border-color: rgba(0, 0, 255, 0.1);
+}
+
+.recipientLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  flex: 1;
+}
+
+.leadName {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.leadEmail {
+  font-size: 11.5px;
+  color: #64748B;
+  direction: ltr;
+}
+
+.crudActionBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 3px 5px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748B;
+  transition: all 0.2s ease;
+}
+
+.crudActionBtn:hover {
+  background: rgba(15, 23, 42, 0.06);
+  color: #0F172A;
+}
+
+.btnDeleteLead:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #EF4444;
+}
+
+/* 6. حقول الإدخال المضبوطة بمقاسات الـ Dashboard الاحترافية */
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.fieldLabelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.dashboardInput {
+  width: 100%;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(15, 23, 42, 0.09);
+  border-radius: 12px;
+  padding: 0 14px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #0F172A;
+  outline: none;
+  box-sizing: border-box;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.dashboardInput:focus {
+  border-color: #0000FF;
+  background: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(0, 0, 255, 0.1);
+}
+
+.dashboardTextarea {
+  height: auto;
+  min-height: 130px;
+  padding: 12px 14px;
+  resize: vertical;
+  line-height: 1.65;
+}
+
+.ltrInput {
+  direction: ltr;
+  text-align: left;
+}
+
+.tokenBtn {
+  background: rgba(0, 0, 255, 0.06);
+  color: #0000FF;
+  border: 1px solid rgba(0, 0, 255, 0.14);
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.tokenBtn:hover {
+  background: #0000FF;
+  color: #FFFFFF;
+}
+
+.gridTwoInputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* زر إطلاق الحملة بالأزرق الملكي */
+.btnLaunchCampaign {
+  width: 100%;
+  height: 48px;
+  border-radius: 12px;
+  border: none;
+  background: #0000FF;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 255, 0.28);
+  transition: all 0.22s ease;
+  font-family: inherit;
+  margin-top: 6px;
+}
+
+.btnLaunchCampaign:hover:not(:disabled) {
+  background: #0000D8;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(0, 0, 255, 0.38);
+}
+
+.btnLaunchCampaign:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 7. هيكل المعاينة الحية */
+.previewChassis {
+  background: #090E17;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+}
+
+.previewEmailSheet {
+  background: #FFFFFF;
+  margin: 12px;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.brandCardHeader {
+  background: #0F172A;
+  padding: 22px 18px;
+  text-align: center;
+  border-bottom: 3px solid #0000FF;
+}
+
+.brandBadge {
+  display: inline-block;
+  background: #0000FF;
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.brandSubject {
+  color: #FFFFFF;
+  font-size: 13.5px;
+  margin: 0;
+  font-weight: 700;
+}
+
+.brandBody {
+  padding: 22px 18px;
+  color: #0F172A;
+}
+
+.saluteText {
+  font-weight: 700;
+  font-size: 13.5px;
+  margin: 0 0 10px 0;
+}
+
+.paragraphText {
+  font-size: 12.5px;
+  color: #475569;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.previewCtaBtn {
+  display: inline-block;
+  background: #0000FF;
+  color: #FFFFFF;
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 10px 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 255, 0.28);
+}
+
+.brandFooter {
+  background: #F8FAFC;
+  padding: 14px;
+  text-align: center;
+  font-size: 10.5px;
+  color: #94A3B8;
+  border-top: 1px solid rgba(15, 23, 42, 0.05);
+}
+
+/* 8. شريط الإرسال العائم في الخلفية (Non-blocking Dock) */
+.floatingDispatcherDock {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 9999;
+  max-width: 380px;
+  width: calc(100% - 48px);
+  background: rgba(15, 23, 42, 0.94);
+  backdrop-filter: blur(16px);
+  border-radius: 18px;
+  padding: 16px 20px;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.25);
+  color: #FFFFFF;
+  direction: rtl;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.dockHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.pulseDotActive {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #38BDF8;
+  box-shadow: 0 0 10px #38BDF8;
+}
+
+.pulseDotDone {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 10px #10B981;
+}
+
+.progressTrack {
+  width: 100%;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.progressFill {
+  height: 100%;
+  background: #0000FF;
+  transition: width 0.2s ease;
+}
+
+/* 9. النوافذ المنبثقة للـ CRUD وفحص الإيميل */
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modalWindow {
+  background: #FFFFFF;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 440px;
+  padding: 24px;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.15);
+}
+
+.modalTitle {
+  font-size: 16px;
+  font-weight: 800;
+  margin: 0 0 14px 0;
+  color: #0F172A;
+}
+
+@media (max-width: 1080px) {
+  .coreGrid {
+    grid-template-columns: 1fr;
+  }
+}

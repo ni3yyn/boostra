@@ -1,0 +1,164 @@
+/* src/app/admin/email/components/EmailModal.module.css */
+
+/* خلفية التعتيم الخارجية */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.32);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  direction: rtl;
+  animation: backdropEnter 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.backdropClosing {
+  animation: backdropExit 0.18s ease-in forwards !important;
+}
+
+@keyframes backdropEnter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes backdropExit {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* نافذة المودال: أصبحت بيضاء ناصعة ونقية 100% بدون أي تسريب للظل الداخلي */
+.modalWindow {
+  position: relative;
+  width: 100%;
+  border-radius: 24px;
+  overflow: hidden;
+  isolation: isolate;
+  
+  /* بياض ناصع ومضيء 100% يمنع تسريب لون التعتيم الداكن للداخل نهائياً */
+  background: #FFFFFF !important;
+  
+  /* إطار ناعم جداً وخفيف */
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  
+  /* ظل خارجي ناعم ومرفوع بأناقة */
+  box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.15), 0 0 0 1px rgba(15, 23, 42, 0.03);
+  
+  animation: modalPopIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+.modalClosing {
+  animation: modalPopOut 0.18s cubic-bezier(0.4, 0, 1, 1) forwards !important;
+}
+
+@keyframes modalPopIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes modalPopOut {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.97) translateY(10px);
+  }
+}
+
+.modalContent {
+  position: relative;
+  z-index: 2;
+  padding: 26px;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* رأس المودال */
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  margin-bottom: 18px;
+}
+
+.titleBox {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: #64748B;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.closeBtn {
+  background: rgba(15, 23, 42, 0.04);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748B;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.closeBtn:hover {
+  background: rgba(0, 0, 255, 0.08);
+  color: #0000FF;
+  transform: scale(1.05);
+}
+
+/* جسم المودال */
+.body {
+  overflow-y: auto;
+  padding-left: 4px;
+  flex: 1;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(15, 23, 42, 0.12) transparent;
+}
+
+.body::-webkit-scrollbar {
+  width: 4px;
+}
+.body::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.12);
+  border-radius: 10px;
+}
+.body::-webkit-scrollbar-thumb:hover {
+  background: #0000FF;
+}
+
+@media (max-width: 480px) {
+  .modalContent {
+    padding: 20px 16px;
+  }
+}
