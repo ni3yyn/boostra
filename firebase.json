@@ -12,6 +12,14 @@
         "destination": "/admin.html"
       },
       {
+        "source": "/admin/email",
+        "destination": "/admin/email.html"
+      },
+      {
+        "source": "/admin/store",
+        "destination": "/admin/store.html"
+      },
+      {
         "source": "/gallery",
         "destination": "/gallery.html"
       },
