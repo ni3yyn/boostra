@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
 const apiDirectory = resolve('src/app/api');
-const excludedApiDirectory = resolve('src/app/.api-firebase-excluded');
+const excludedApiDirectory = resolve('.api-firebase-excluded');
 
 if (existsSync(excludedApiDirectory)) {
   rmSync(excludedApiDirectory, { recursive: true, force: true });
@@ -16,9 +16,9 @@ if (apiWasMoved) {
 }
 
 try {
-  const result = spawnSync('npx', ['next', 'build', '--webpack'], {
+  const nextCommand = resolve('node_modules/next/dist/bin/next');
+  const result = spawnSync(process.execPath, [nextCommand, 'build', '--webpack'], {
     stdio: 'inherit',
-    shell: true,
     env: { ...process.env, FIREBASE_BUILD: '1' },
   });
 
