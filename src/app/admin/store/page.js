@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { db, auth } from '../../lib/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { 
   collection, 
   onSnapshot, 
@@ -199,6 +199,20 @@ const Icons = {
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
     </svg>
+  ),
+  LogOut: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+      <polyline points="16 17 21 12 16 7"/>
+      <line x1="21" y1="12" x2="9" y2="12"/>
+    </svg>
+  ),
+  Menu: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="3" y1="12" x2="21" y2="12"/>
+      <line x1="3" y1="6" x2="21" y2="6"/>
+      <line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
   )
 };
 
@@ -210,6 +224,7 @@ const INITIAL_STATE = {
 
 export default function StoreAdminPage() {
   const [activeTab, setActiveTab] = useState('list'); // 'list' | 'form' | 'orders'
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   // بيانات المنتجات
   const [products, setProducts] = useState([]);
@@ -281,6 +296,24 @@ export default function StoreAdminPage() {
       unsubscribeGifts();
     };
   }, []);
+
+  // دالة تسجيل الخروج الآمنة مع نافذة تأكيد
+  const handleLogout = () => {
+    setConfirmDialog({
+      isOpen: true,
+      title: 'تسجيل الخروج',
+      message: 'هل أنت متأكد من رغبتك في تسجيل الخروج من لوحة التحكم؟',
+      onConfirm: async () => {
+        setConfirmDialog(prev => ({ ...prev, isOpen: false }));
+        try {
+          await signOut(auth);
+          window.location.replace('/admin');
+        } catch (err) {
+          showToast('فشل تسجيل الخروج', 'error');
+        }
+      }
+    });
+  };
 
   // إحصائيات الطلبات
   const orderStats = useMemo(() => ({
@@ -648,7 +681,8 @@ export default function StoreAdminPage() {
         <div className="aurora-orb orb-middle" />
       </div>
 
-      <header className={styles.header}>
+      {/* ==================== HEADER ==================== */}
+      <header className={`${styles.header} ${mobileMenuOpen ? styles.menuOpen : ''}`}>
         <div className={styles.headerInner}>
           <div className={styles.brandGroup}>
             <BoostraLogo size={36} />
@@ -661,7 +695,8 @@ export default function StoreAdminPage() {
             </div>
           </div>
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {/* أزرار الهيدر على الديسكتوب */}
+          <div className={styles.headerActionsDesktop}>
             <button
               type="button"
               onClick={() => setIsGoogleSheetModalOpen(true)}
@@ -676,7 +711,88 @@ export default function StoreAdminPage() {
               <span>العودة للوحة الإدارة</span>
               <span>←</span>
             </Link>
+
+            <button
+              type="button"
+              onClick={handleLogout}
+              className={styles.btnLogoutHeader}
+              title="تسجيل الخروج من النظام"
+            >
+              <Icons.LogOut />
+              <span>تسجيل الخروج</span>
+            </button>
           </div>
+
+          {/* زر الهامبرغر المتطابق مع الصفحة الرئيسية */}
+          <button
+            type="button"
+            className={styles.hamburgerBtn}
+            onClick={() => setMobileMenuOpen(prev => !prev)}
+            aria-label="القائمة"
+          >
+            {mobileMenuOpen ? (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
+            )}
+          </button>
+        </div>
+
+        {/* القائمة المنسدلة العائمة (تطابق Landing Page ولا تدفع الصفحة لأسفل) */}
+        <div className={styles.headerDropdownMenu}>
+          <ul className={styles.dropdownNavList}>
+            <li>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsGoogleSheetModalOpen(true);
+                  setMobileMenuOpen(false);
+                }}
+                className={styles.dropdownNavItem}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <Icons.GoogleSheets />
+                  <span>تصدير ومزامنة Google Sheets</span>
+                </div>
+                <span className={styles.navArrow}>←</span>
+              </button>
+            </li>
+
+            <li>
+              <Link 
+                href="/admin" 
+                className={styles.dropdownNavItem}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <Icons.Box />
+                  <span>العودة للوحة الإدارة</span>
+                </div>
+                <span className={styles.navArrow}>←</span>
+              </Link>
+            </li>
+
+            <li>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  handleLogout();
+                }}
+                className={`${styles.dropdownNavItem} ${styles.dropdownNavLogout}`}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <Icons.LogOut />
+                  <span>تسجيل الخروج</span>
+                </div>
+                <span className={styles.navArrow} style={{ color: '#DC2626' }}>←</span>
+              </button>
+            </li>
+          </ul>
         </div>
       </header>
 
@@ -719,6 +835,19 @@ export default function StoreAdminPage() {
                 </div>
               </button>
             </nav>
+
+            {/* زر تسجيل خروج سريع إضافي أسفل الشريط الجانبي */}
+            <div className={styles.sideTrailFooter}>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className={styles.sideTrailLogoutBtn}
+                title="تسجيل الخروج"
+              >
+                <Icons.LogOut />
+                <span className={styles.trailLabel}>تسجيل الخروج</span>
+              </button>
+            </div>
           </aside>
 
           {/* مساحة العرض الرئيسية */}
@@ -1452,7 +1581,7 @@ export default function StoreAdminPage() {
         )}
       </EmailModal>
 
-      {/* --- نافذة تأكيد الحذف عبر EMAILMODAL الموحد --- */}
+      {/* --- نافذة تأكيد الحذف / الخروج عبر EMAILMODAL الموحد --- */}
       <EmailModal
         isOpen={confirmDialog.isOpen}
         onClose={() => setConfirmDialog(prev => ({ ...prev, isOpen: false }))}
@@ -1477,7 +1606,7 @@ export default function StoreAdminPage() {
               className={styles.btnDialogDanger} 
               onClick={confirmDialog.onConfirm}
             >
-              تأكيد الحذف
+              تأكيد
             </button>
           </div>
         </div>

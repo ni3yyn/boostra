@@ -67,16 +67,18 @@ const UnifiedBrandPattern = ({ width = "380px", height = "240px", opacity = 0.25
   </div>
 );
 
-// --- VECTOR ICONS ---
+// --- VECTOR ICONS (SVGS PREVENT BIDI FLIPPING) ---
 const Icons = {
   Check: () => <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>,
   ArrowRight: () => <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.4"><path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>,
   ArrowDown: () => <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><polyline points="19 12 12 19 5 12" /></svg>,
   Close: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>,
-  Clock: () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+  Clock: () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>,
+  ChevronLeft: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>,
+  ChevronRight: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
 };
 
-// --- COUNTDOWN TIMER COMPONENT (REUSABLE FOR CARDS AND MODAL) ---
+// --- COUNTDOWN TIMER COMPONENT ---
 const CountdownTimer = ({ targetDate, compact = false, onExpire }) => {
   const [timeLeft, setTimeLeft] = useState('');
   
@@ -132,7 +134,6 @@ export default function DigitalGiftsStorePage() {
   const [isClosing, setIsClosing] = useState(false);
   const [isFormInView, setIsFormInView] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [cardImageIndexes, setCardImageIndexes] = useState({});
   const [isOfferExpired, setIsOfferExpired] = useState(false);
   
   const [clientName, setClientName] = useState('');
@@ -143,18 +144,12 @@ export default function DigitalGiftsStorePage() {
 
   const formRef = useRef(null);
 
-  // مراجع إيماءات اللمس السريعة (Touch Gestures)
-  const cardTouchStartX = useRef(null);
-  const cardTouchStartY = useRef(null);
+  // مراجع إيماءات اللمس للمودال وعارض الصور
   const modalTouchStartX = useRef(null);
   const modalTouchStartY = useRef(null);
   const viewerTouchStartX = useRef(null);
   const viewerTouchStartY = useRef(null);
   const sheetTouchStartY = useRef(null);
-
-  // كبح النقرات العرضية عند السحب
-  const suppressCardClick = useRef(false);
-  const suppressModalClick = useRef(false);
 
   // جلب البيانات من Firebase
   useEffect(() => {
@@ -168,7 +163,7 @@ export default function DigitalGiftsStorePage() {
     return () => unsubscribe();
   }, []);
 
-  // 1. إدارة عزل التمرير بدون أي اهتزاز في العرض (Zero Layout Shift)
+  // إدارة عزل التمرير
   useEffect(() => {
     if (!selectedProduct) return;
 
@@ -205,7 +200,6 @@ export default function DigitalGiftsStorePage() {
     };
   }, [activeImageViewer?.images]);
 
-  // 2. مراقب الاستمارة لزر المتابعة التفاعلي
   useEffect(() => {
     if (selectedProduct && formRef.current) {
       const observer = new IntersectionObserver(
@@ -237,7 +231,6 @@ export default function DigitalGiftsStorePage() {
     }, 280);
   };
 
-  // مراجع ومؤشر السلايدر السريع (Pure JS GPU Slider)
   const tabRefs = useRef({});
   const [indicatorStyle, setIndicatorStyle] = useState({
     transform: 'translate3d(0, 0, 0)',
@@ -245,7 +238,6 @@ export default function DigitalGiftsStorePage() {
     opacity: 0
   });
 
-  // حساب عدد المنتجات في كل فئة ديناميكياً
   const categoryCounts = useMemo(() => ({
     all: products.length,
     free: products.filter(p => p.type === 'always_free').length,
@@ -253,7 +245,6 @@ export default function DigitalGiftsStorePage() {
     paid: products.filter(p => p.type === 'paid').length,
   }), [products]);
 
-  // تحريك المؤشر مع تغيير التبويب وتغيير مقاس الشاشة
   useEffect(() => {
     const updateIndicator = () => {
       const el = tabRefs.current[activeCategory];
@@ -288,15 +279,6 @@ export default function DigitalGiftsStorePage() {
     return (index + direction + images.length) % images.length;
   };
 
-  const changeCardImage = (event, product, direction) => {
-    if (event?.stopPropagation) event.stopPropagation();
-    const images = getProductImages(product);
-    setCardImageIndexes(prev => ({
-      ...prev,
-      [product.id]: shiftImage(images, prev[product.id] || 0, direction),
-    }));
-  };
-
   const openImageViewer = (event, images, index, title) => {
     if (event?.stopPropagation) event.stopPropagation();
     setActiveImageViewer({ images, index, title });
@@ -318,29 +300,6 @@ export default function DigitalGiftsStorePage() {
     } : prev);
   };
 
-  // --- معالجة حركات السحب لبطاقة المنتج في القائمة (Card Gestures) ---
-  const handleCardTouchStart = (event) => {
-    cardTouchStartX.current = event.changedTouches[0].clientX;
-    cardTouchStartY.current = event.changedTouches[0].clientY;
-  };
-
-  const handleCardTouchEnd = (event, product) => {
-    if (cardTouchStartX.current === null) return;
-    const deltaX = event.changedTouches[0].clientX - cardTouchStartX.current;
-    const deltaY = event.changedTouches[0].clientY - (cardTouchStartY.current || 0);
-    cardTouchStartX.current = null;
-    cardTouchStartY.current = null;
-
-    if (Math.abs(deltaX) > 35 && Math.abs(deltaX) > Math.abs(deltaY)) {
-      suppressCardClick.current = true;
-      changeCardImage(event, product, deltaX < 0 ? 1 : -1);
-      setTimeout(() => {
-        suppressCardClick.current = false;
-      }, 300);
-    }
-  };
-
-  // --- معالجة حركات السحب لنافذة المنتج (Modal / Bottomsheet Gestures) ---
   const validImages = useMemo(() => {
     if (!selectedProduct) return [];
     if (selectedProduct.imageSrcs && selectedProduct.imageSrcs.length > 0) {
@@ -352,6 +311,7 @@ export default function DigitalGiftsStorePage() {
     return [];
   }, [selectedProduct]);
 
+  // إيماءات اللمس للمودال
   const handleModalTouchStart = (event) => {
     modalTouchStartX.current = event.changedTouches[0].clientX;
     modalTouchStartY.current = event.changedTouches[0].clientY;
@@ -364,21 +324,15 @@ export default function DigitalGiftsStorePage() {
     modalTouchStartX.current = null;
     modalTouchStartY.current = null;
 
-    // السحب الأفقي: تقليب الصور
+    // السحب لليسار deltaX < 0 ينتقل للصورة التالية (+1)
+    // السحب لليمين deltaX > 0 ينتقل للصورة السابقة (-1)
     if (Math.abs(deltaX) > 35 && Math.abs(deltaX) > Math.abs(deltaY)) {
-      suppressModalClick.current = true;
       setCurrentImageIndex(prev => shiftImage(validImages, prev, deltaX < 0 ? 1 : -1));
-      setTimeout(() => {
-        suppressModalClick.current = false;
-      }, 300);
-    } 
-    // السحب للأسفل من أعلى الصورة: إغلاق النافذة
-    else if (deltaY > 70 && deltaY > Math.abs(deltaX) * 1.4) {
+    } else if (deltaY > 75 && deltaY > Math.abs(deltaX) * 1.4) {
       closeProductModal();
     }
   };
 
-  // سحب مقبض النافذة العلوية للأسفل للإغلاق (Sheet Drag Handle)
   const handleSheetTouchStart = (event) => {
     sheetTouchStartY.current = event.changedTouches[0].clientY;
   };
@@ -392,7 +346,6 @@ export default function DigitalGiftsStorePage() {
     }
   };
 
-  // سحب عارض الصور بملء الشاشة
   const handleViewerTouchStart = (event) => {
     viewerTouchStartX.current = event.changedTouches[0].clientX;
     viewerTouchStartY.current = event.changedTouches[0].clientY;
@@ -448,7 +401,6 @@ export default function DigitalGiftsStorePage() {
     setSubmitting(true);
     try {
       if (selectedProduct.type === 'paid') {
-        // 1. الطلب المدفوع ➔ يذهب لـ leads لوحة التحكم للمتابعة الهاتفية والواتساب
         await addDoc(collection(db, 'leads'), {
           name: clientName.trim(),
           phone: clientPhone.trim(),
@@ -459,7 +411,6 @@ export default function DigitalGiftsStorePage() {
           createdAt: serverTimestamp()
         });
       } else {
-        // 2. الطلب المجاني ➔ يسجل في gift_leads
         await addDoc(collection(db, 'gift_leads'), {
           name: clientName.trim(),
           email: clientEmail.trim() || '',
@@ -471,7 +422,6 @@ export default function DigitalGiftsStorePage() {
           createdAt: serverTimestamp()
         });
 
-        // 3. الاتصال بالمسار الصحيح للمتجر ليرسل القالب
         if (clientEmail.trim()) {
           fetch(apiUrl('/api/admin/send-gift'), {
             method: 'POST',
@@ -519,6 +469,7 @@ export default function DigitalGiftsStorePage() {
             </Link>
             <ul className="header-nav-links">
               <li><Link href="/">الرئيسية</Link></li>
+              <li><Link href="/about">من أنا</Link></li>
               <li><Link href="/gifts" style={{ color: 'var(--accent)', fontWeight: 800 }}>المتجر</Link></li>
               <li><Link href="/gallery">معرض النتائج</Link></li>
               <li><Link href="/#booking">تواصل معنا</Link></li>
@@ -539,6 +490,7 @@ export default function DigitalGiftsStorePage() {
           <div className="header-dropdown-menu">
             <ul className="dropdown-nav-list">
               <li><Link href="/" onClick={() => setMobileMenuOpen(false)}><span>الرئيسية</span><span>←</span></Link></li>
+              <li><Link href="/about" onClick={() => setMobileMenuOpen(false)}><span>من أنا</span><span>←</span></Link></li>
               <li><Link href="/gifts" onClick={() => setMobileMenuOpen(false)} style={{ color: 'var(--accent)' }}><span>المتجر</span><span style={{ color: 'var(--accent)' }}>←</span></Link></li>
               <li><Link href="/gallery" onClick={() => setMobileMenuOpen(false)}><span>معرض النتائج</span><span>←</span></Link></li>
               <li><Link href="/#booking" onClick={() => setMobileMenuOpen(false)}><span>تواصل معنا</span><span>←</span></Link></li>
@@ -549,11 +501,8 @@ export default function DigitalGiftsStorePage() {
         {/* Store Grid */}
         <main style={{ maxWidth: '1240px', margin: '0 auto', padding: '120px 24px 80px' }}>
           <div className="store-grid-view">
-            {/* CONTINUOUS SUBTAB BAR (PURE JS / GPU SLIDER) */}
             <div className="continuous-tab-wrapper">
               <div className="continuous-tab-container" style={{ position: 'relative' }}>
-                
-                {/* المؤشر المنزلق الخفيف */}
                 <div 
                   className="pure-moving-indicator"
                   style={{
@@ -569,7 +518,6 @@ export default function DigitalGiftsStorePage() {
                   return (
                     <React.Fragment key={cat.id}>
                       {idx > 0 && <div className="tab-divider-line" aria-hidden="true" />}
-                      
                       <button
                         ref={(el) => { tabRefs.current[cat.id] = el; }}
                         type="button"
@@ -596,34 +544,20 @@ export default function DigitalGiftsStorePage() {
               <div className="products-grid">
                 {filteredProducts.map((prod) => {
                   const cardImages = getProductImages(prod);
-                  const cardImageIndex = cardImageIndexes[prod.id] || 0;
-                  const coverImg = cardImages[cardImageIndex] || cardImages[0];
+                  const coverImg = cardImages[0] || null;
+
                   return (
                     <div 
                       key={prod.id} 
                       className="boostra-soft-card" 
-                      onClick={() => {
-                        if (suppressCardClick.current) return;
-                        openProductModal(prod);
-                      }}
+                      onClick={() => openProductModal(prod)}
                     >
-                      <div
-                        className="product-image-chassis"
-                        onTouchStart={handleCardTouchStart}
-                        onTouchEnd={(event) => handleCardTouchEnd(event, prod)}
-                      >
+                      <div className="product-image-chassis">
                         {coverImg ? (
                           <img
                             src={coverImg}
                             alt={prod.title}
                             className="product-img"
-                            onClick={(event) => {
-                              if (suppressCardClick.current) {
-                                event.stopPropagation();
-                                return;
-                              }
-                              openImageViewer(event, cardImages, cardImageIndex, prod.title);
-                            }}
                           />
                         ) : (
                           <div className="product-img-fallback">
@@ -631,19 +565,11 @@ export default function DigitalGiftsStorePage() {
                           </div>
                         )}
 
-                        {/* مؤشرات الصور (Dots) فقط بدون الأسهم */}
-                        {cardImages.length > 1 && (
-                          <div className="product-image-dots" aria-hidden="true">
-                            {cardImages.map((_, index) => <span key={index} className={index === cardImageIndex ? 'active' : ''} />)}
-                          </div>
-                        )}
-                        
                         <div className="product-badges-row">
                           <span className={`product-badge ${prod.type === 'paid' ? 'badge-paid' : 'badge-free'}`}>
                             {prod.type === 'paid' ? 'أداة احترافية' : (prod.type === 'limited_free' ? 'عرض مؤقت' : 'منتج مجاني')}
                           </span>
 
-                          {/* العداد التنازلي يظهر مباشرة على البطاقة */}
                           {prod.type === 'limited_free' && prod.expireAt && (
                             <div className="product-card-timer-pill">
                               <Icons.Clock />
@@ -678,7 +604,7 @@ export default function DigitalGiftsStorePage() {
           <div className={`pm-backdrop ${isClosing ? 'pm-backdrop-closing' : ''}`} onClick={closeProductModal}>
             <div className={`pm-window ${isClosing ? 'pm-window-closing' : ''}`} onClick={e => e.stopPropagation()}>
               
-              {/* مقبض سحب النافذة السفلية للهواتف (Swipe Down Handle) */}
+              {/* مقبض سحب النافذة السفلية للهواتف */}
               <div 
                 className="pm-sheet-drag-handle" 
                 onTouchStart={handleSheetTouchStart}
@@ -698,7 +624,7 @@ export default function DigitalGiftsStorePage() {
                   width: '40px',
                   height: '4.5px',
                   borderRadius: '999px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.28)',
+                  backgroundColor: 'rgba(15, 23, 42, 0.15)',
                   display: 'block'
                 }} />
               </div>
@@ -712,7 +638,6 @@ export default function DigitalGiftsStorePage() {
               </div>
 
               <div className="pm-scroll-area" data-lenis-prevent="true">
-                {/* رأس صورة المودال مع دعم كامل لإيماءات السحب واللمس باليد */}
                 <div 
                   className="pm-image-header"
                   onTouchStart={handleModalTouchStart}
@@ -724,34 +649,34 @@ export default function DigitalGiftsStorePage() {
                         src={validImages[currentImageIndex]}
                         alt={selectedProduct.title}
                         className="pm-cover-img"
-                        onClick={(event) => {
-                          if (suppressModalClick.current) return;
-                          openImageViewer(event, validImages, currentImageIndex, selectedProduct.title);
-                        }}
+                        onClick={(event) => openImageViewer(event, validImages, currentImageIndex, selectedProduct.title)}
                       />
                       {validImages.length > 1 && (
                         <>
+                          {/* في الواجهة العربية RTL: السهم الأيسر يشير لليسار (←) وينتقل للأمام للصورة التالية (+1) */}
                           <button 
                             type="button" 
-                            className="pm-image-arrow pm-image-arrow-prev" 
+                            className="pm-image-arrow pm-image-arrow-left" 
                             onClick={(event) => { 
                               event.stopPropagation(); 
                               setCurrentImageIndex(shiftImage(validImages, currentImageIndex, 1)); 
                             }} 
                             aria-label="الصورة التالية"
                           >
-                            ‹
+                            <Icons.ChevronLeft />
                           </button>
+                          
+                          {/* في الواجهة العربية RTL: السهم الأيمن يشير لليمين (→) ويعود للخلف للصورة السابقة (-1) */}
                           <button 
                             type="button" 
-                            className="pm-image-arrow pm-image-arrow-next" 
+                            className="pm-image-arrow pm-image-arrow-right" 
                             onClick={(event) => { 
                               event.stopPropagation(); 
                               setCurrentImageIndex(shiftImage(validImages, currentImageIndex, -1)); 
                             }} 
                             aria-label="الصورة السابقة"
                           >
-                            ›
+                            <Icons.ChevronRight />
                           </button>
                         </>
                       )}
@@ -769,7 +694,7 @@ export default function DigitalGiftsStorePage() {
                     </>
                   ) : (
                     <div className="pm-cover-fallback">
-                      <BrandLogo size={60} color="rgba(255, 255, 255, 0.4)" />
+                      <BrandLogo size={60} color="rgba(0, 0, 255, 0.2)" />
                     </div>
                   )}
                 </div>
@@ -893,7 +818,7 @@ export default function DigitalGiftsStorePage() {
           </div>
         )}
 
-        {/* عارض الصور بكامل الشاشة مع دعم السحب باليد */}
+        {/* عارض الصور بكامل الشاشة */}
         {activeImageViewer && (
           <div 
             className="image-viewer-overlay" 
@@ -901,11 +826,30 @@ export default function DigitalGiftsStorePage() {
             onTouchStart={handleViewerTouchStart}
             onTouchEnd={handleViewerTouchEnd}
           >
-            <button type="button" className="image-viewer-close" onClick={closeImageViewer} aria-label="إغلاق">×</button>
+            <button type="button" className="image-viewer-close" onClick={closeImageViewer} aria-label="إغلاق">
+              <Icons.Close />
+            </button>
             {activeImageViewer.images.length > 1 && (
               <>
-                <button type="button" className="image-viewer-arrow image-viewer-arrow-prev" onClick={(event) => shiftImageViewer(event, 1)} aria-label="الصورة التالية">‹</button>
-                <button type="button" className="image-viewer-arrow image-viewer-arrow-next" onClick={(event) => shiftImageViewer(event, -1)} aria-label="الصورة السابقة">›</button>
+                {/* السهم الأيسر (←) ينتقل للأمام في RTL */}
+                <button 
+                  type="button" 
+                  className="image-viewer-arrow image-viewer-arrow-left" 
+                  onClick={(event) => shiftImageViewer(event, 1)} 
+                  aria-label="الصورة التالية"
+                >
+                  <Icons.ChevronLeft />
+                </button>
+
+                {/* السهم الأيمن (→) يعود للخلف في RTL */}
+                <button 
+                  type="button" 
+                  className="image-viewer-arrow image-viewer-arrow-right" 
+                  onClick={(event) => shiftImageViewer(event, -1)} 
+                  aria-label="الصورة السابقة"
+                >
+                  <Icons.ChevronRight />
+                </button>
               </>
             )}
             <img

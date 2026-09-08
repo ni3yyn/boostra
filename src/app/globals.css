@@ -2253,3 +2253,32 @@ body {
 .btnCancel:active {
   transform: translateY(0);
 }
+
+/* زر من أنا الثانوي في الهيرو */
+.btn-whoami-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 28px;
+  border-radius: 14px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-subtle);
+  color: var(--text-main);
+  font-family: var(--font-family);
+  font-weight: 600;
+  font-size: 1.02rem;
+  text-decoration: none !important;
+  transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+  user-select: none;
+}
+
+.btn-whoami-secondary:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  color: var(--accent);
+  background: #FFFFFF;
+}
+
+.btn-whoami-secondary:active {
+  transform: translateY(0);
+}

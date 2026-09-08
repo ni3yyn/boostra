@@ -84,6 +84,11 @@ const Icons = {
     />
   </svg>
 ),
+Store: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+    </svg>
+  ),
   GoogleSheets: () => (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -513,6 +518,23 @@ export default function AdminDashboard() {
 
     {/* أزرار الديسكتوب (تختفي تلقائياً على الموبايل عبر كلاس header-nav-links) */}
     <div className="header-nav-links">
+      {/* زر الانتقال لمتجر الإدارة */}
+      <Link
+        href="/admin/store"
+        title="إدارة المتجر والمبيعات"
+        style={{
+          ...headerBtnStyle,
+          backgroundColor: 'rgba(0, 0, 255, 0.06)',
+          color: 'var(--accent, #0000FF)',
+          borderColor: 'rgba(0, 0, 255, 0.18)',
+          fontSize: '12.5px',
+          fontWeight: 700,
+          textDecoration: 'none'
+        }}
+      >
+        <Icons.Store />
+        <span>إدارة المتجر</span>
+      </Link>
       <button
         onClick={() => setIsGoogleSheetModalOpen(true)}
         title="تصدير ومزامنة Google Sheets"
@@ -574,6 +596,35 @@ export default function AdminDashboard() {
   {/* القائمة المنسدلة المعتمدة بنفس كلاسات globals.css */}
   <div className="header-dropdown-menu">
     <ul className="dropdown-nav-list">
+      {/* رابط المتجر للموبايل */}
+      <li>
+        <Link
+          href="/admin/store"
+          onClick={() => setMobileMenuOpen(false)}
+          style={{
+            width: '100%',
+            background: 'transparent',
+            border: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '12px 16px',
+            borderRadius: '14px',
+            fontSize: '0.95rem',
+            fontWeight: 700,
+            color: 'var(--accent, #0000FF)',
+            textDecoration: 'none',
+            cursor: 'pointer',
+            boxSizing: 'border-box'
+          }}
+        >
+          <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Icons.Store />
+            <span>إدارة المتجر والمبيعات</span>
+          </span>
+          <span style={{ color: 'var(--text-dim)' }}>←</span>
+        </Link>
+      </li>
       <li>
         <button
           type="button"

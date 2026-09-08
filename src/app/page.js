@@ -1076,6 +1076,7 @@ export default function MediaBuyingLanding() {
     {/* روابط سطح المكتب */}
     <ul className="header-nav-links">
       <li><Link href="/">الرئيسية</Link></li>
+      <li><Link href="/about">من أنا</Link></li>
       <li><Link href="/gifts">المتجر</Link></li>
       <li><Link href="/gallery">معرض النتائج</Link></li>
       <li><Link href="#booking" onClick={handleBookingNavigation}>تواصل معنا</Link></li>
@@ -1114,6 +1115,7 @@ export default function MediaBuyingLanding() {
           <span style={{ color: 'var(--text-dim)' }}>←</span>
         </Link>
       </li>
+      <li><Link href="/about" onClick={() => setMobileMenuOpen(false)}><span>من أنا</span><span style={{ color: 'var(--text-dim)' }}>←</span></Link></li>
       <li>
         <Link href="/gifts" onClick={() => setMobileMenuOpen(false)}>
           <span>المتجر</span>
@@ -1191,14 +1193,21 @@ export default function MediaBuyingLanding() {
                   أقدّم خدمة إدارة وتحسين الحملات الإعلانية المدفوعة، بداية من دراسة الجمهور والسوق، وبناء الاستراتيجية والـ Funnel، إلى إطلاق الحملات واختبار الـ Creatives، بهدف خفض تكلفة الحصول على الزبون وزيادة المبيعات والـ Leads.
                 </p>
 
-                <div className="hero-btn-group" style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
-                  <a href="#booking" className="btn-action" style={{ textDecoration: 'none' }}>
-                    ابدأ نمو مشروعك الآن <BrandIcons.ArrowLeft />
-                  </a>
-                  <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 500 }}>
-                    حملات ناجحة بالجزائر والخليج العربي
-                  </span>
-                </div>
+                <div className="hero-btn-group" style={{ display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
+  {/* الزر الأساسي */}
+  <a href="#booking" className="btn-action" style={{ textDecoration: 'none' }}>
+    ابدأ نمو مشروعك الآن <BrandIcons.ArrowLeft />
+  </a>
+
+  {/* زر من أنا الثانوي المتناسق تماماً مع الهوية */}
+  <Link href="/about" className="btn-whoami-secondary">
+    <span>من أنا</span>
+  </Link>
+
+  <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 500 }}>
+    حملات ناجحة بالجزائر والخليج العربي
+  </span>
+</div>
               </div>
 
               {/* INCLINED MOCKUP REPLACED WITH ACCELERATED PIPELINE */}

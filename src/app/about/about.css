@@ -1,0 +1,136 @@
+/* src/app/about/about.css */
+
+/* الهيرو وتوزيع العناصر */
+.whoami-hero-section {
+  min-height: 75vh;
+  display: flex;
+  align-items: center;
+  padding: 30px 0 60px;
+}
+
+.whoami-hero-layout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 50px;
+  width: 100%;
+}
+
+.whoami-hero-text {
+  flex: 1.25;
+  text-align: right;
+}
+
+.whoami-portrait-column {
+  flex: 0.95;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* بطاقة البورتريه المدمجة بنفس طراز صفحة الهبوط */
+.portrait-integrated-chassis {
+  width: 100%;
+  max-width: 410px;
+  border-radius: 28px;
+  /* Hover هادئ وخفيف للغاية مطابق لـ integrated-chassis-card */
+  transition: transform 0.25s ease;
+}
+
+.portrait-integrated-chassis:hover {
+  transform: translateY(-3px);
+}
+
+.portrait-viewport-frame {
+  width: 100%;
+  aspect-ratio: 4 / 4.8;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #EDF2F7;
+  position: relative;
+  z-index: 2;
+  border: 1px solid rgba(15, 23, 42, 0.04);
+}
+
+.portrait-rendered-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+}
+
+.portrait-fallback-view {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, #F8FAFC 0%, #EEF2FF 100%);
+  padding: 24px;
+  text-align: center;
+}
+
+/* زر ثانوي شفاف ومتناسق */
+.whoami-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 15px 26px;
+  border-radius: 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  text-decoration: none !important;
+  font-family: var(--font-family);
+  font-size: 0.98rem;
+  font-weight: 600;
+  transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.whoami-btn-ghost:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* =========================================
+   RESPONSIVE BREAKPOINTS
+   ========================================= */
+@media (max-width: 900px) {
+  .whoami-hero-layout {
+    flex-direction: column;
+    text-align: center;
+    gap: 40px;
+  }
+
+  .whoami-hero-text {
+    text-align: center;
+  }
+
+  .whoami-hero-text .hero-desc {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .whoami-hero-text > div {
+    justify-content: center;
+  }
+
+  .whoami-portrait-column {
+    order: -1;
+    width: 100%;
+  }
+
+  .portrait-integrated-chassis {
+    max-width: 360px;
+  }
+}
+
+@media (max-width: 480px) {
+  .portrait-integrated-chassis {
+    max-width: 300px;
+  }
+}
