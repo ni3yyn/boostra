@@ -168,7 +168,7 @@ export default function WhoAmIPage() {
         <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '0 24px', paddingTop: '110px' }}>
 
           {/* =========================================
-              SECTION 1: HERO (أيمن بويديا + البورتريه الشخصي)
+              SECTION 1: HERO (أيمن بويدية + البورتريه الشخصي)
              ========================================= */}
           <section className="whoami-hero-section">
             <div className="whoami-hero-layout">
@@ -176,7 +176,7 @@ export default function WhoAmIPage() {
               {/* النصوص والتعريف */}
               <div className="whoami-hero-text">
                 <h1 className="hero-headline" style={{ margin: '0 0 20px 0' }}>
-                  مرحباً، أنا <span style={{ color: 'var(--accent)' }}>أيمن بويديا</span> — أساعد العلامات التجارية على النمو وتحقيق أرباح مستدامة رقمياً.
+                  مرحباً، أنا <span style={{ color: 'var(--accent)' }}>أيمن بويدية</span> — أساعد العلامات التجارية على النمو وتحقيق أرباح مستدامة رقمياً.
                 </h1>
 
                 <p className="hero-desc" style={{ maxWidth: '620px', margin: '0 0 32px 0' }}>
@@ -203,7 +203,7 @@ export default function WhoAmIPage() {
                       {portraitLoaded ? (
                         <img 
                           src="aymen.png" 
-                          alt="أيمن بويديا | Aimen Bouidia"
+                          alt="أيمن بويدية | Aimen Bouidia"
                           className="portrait-rendered-img"
                           onError={() => setPortraitLoaded(false)}
                         />

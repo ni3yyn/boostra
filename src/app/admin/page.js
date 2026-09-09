@@ -9,7 +9,7 @@ import AdminDashboard from "./AdminDashboard";
 
 const SPLASH_DURATION_MS = 1300;
 const SPLASH_EXIT_DURATION_MS = 350;
-const CONFIRMATION_EMPLOYEE_UID = 'GBOeDANTY6PnSUxV6uSIoA7Ugug2';
+const CONFIRMATION_EMPLOYEE_UID = 'atwUAi6s1jVzyJ2GLtyNhuIqjhp1';
 
 const BoostraLogo = ({ size = 56 }) => (
   <svg 
